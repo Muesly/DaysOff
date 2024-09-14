@@ -9,29 +9,65 @@ import SwiftUI
 import SwiftData
 
 struct DaysOffView: View {
-    @State var model: DaysOffModel
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \DayOffModel.date, order: .reverse) private var daysOff: [DayOffModel]
+    @State private var dateToTake: Date
+    @State private var numDaysToTake: Float = 26
+    @State private var dateFormatter: DateFormatter
+
+    private var daysLeft: Float {
+        daysOff.reduce(numDaysToTake, { $0 - $1.type.dayLength })
+    }
+
+    init(dateToTake: Date) {
+        self.dateToTake = dateToTake
+        self.dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE d MMMM YYYY"
+    }
 
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Days Left: \(model.numDaysToTake, format: .number.precision(.fractionLength(0...1))) days")
+                Text("Days Left: \(daysLeft, format: oneDPFormat) days")
                 DatePicker(
                         "Day To Take",
-                        selection: $model.dateToTake,
+                        selection: $dateToTake,
                         displayedComponents: [.date]
                     )
                 Button("Take 1 Day") {
-                    model.takeDay()
+                    takeDay(dateToTake, type: .fullDay)
                 }
                 Button("Take 1/2 Day") {
-                    model.takeHalfDay()
+                    takeDay(dateToTake, type: .halfDay)
+                }
+
+                List {
+                    Section {
+                        ForEach(daysOff) {
+                            Text("\(dateFormatter.string(from: $0.date)) - \($0.type.dayLength, format: oneDPFormat) day")
+                        }
+                    } header: {
+                        Text("Days Taken")
+                    }
                 }
             }
             .navigationTitle("Days Off in 2024")
         }
     }
+
+    private var oneDPFormat: FloatingPointFormatStyle<Float> {
+        .number.precision(.fractionLength(0...1))
+    }
+
+    private func takeDay(_ date: Date, type: DayOffType) {
+        withAnimation {
+            let newItem = DayOffModel(date: date, type: type)
+            modelContext.insert(newItem)
+        }
+    }
 }
 
 #Preview {
-    DaysOffView(model: DaysOffModel())
+    DaysOffView(dateToTake: Date())
+        .modelContainer(for: DayOffModel.self, inMemory: true)
 }

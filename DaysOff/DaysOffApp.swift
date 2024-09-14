@@ -11,28 +11,31 @@ import SwiftData
 @main
 struct DaysOffApp: App {
     let currentDate: Date
+    let sharedModelContainer: ModelContainer
+
     static let uiTestingResetKey = "UI_TESTING_RESET"
     static let uiTestingDateKey = "UI_TESTING_DATE"
 
     init() {
-        Self.resetApplication()
-        self.currentDate = Self.deriveCurrentDate()
+        self.currentDate = Self.overriddenDate ?? Date()
+        self.sharedModelContainer = Self.createSharedModelContainer()
+
+        if Self.isResettingApplication {
+            try? sharedModelContainer.mainContext.delete(model: DayOffModel.self)
+        }
     }
 
     var body: some Scene {
         WindowGroup {
-            DaysOffView(model: DaysOffModel(currentDate: currentDate))
-        }
+            DaysOffView(dateToTake: currentDate)
+        }.modelContainer(sharedModelContainer)
     }
 
-    private static func resetApplication() {
-        if ProcessInfo.processInfo.arguments.contains(Self.uiTestingResetKey),
-           let bundleID = Bundle.main.bundleIdentifier {
-            UserDefaults.standard.removePersistentDomain(forName: bundleID)
-        }
+    private static var isResettingApplication: Bool {
+        ProcessInfo.processInfo.arguments.contains(Self.uiTestingResetKey)
     }
 
-    private static func deriveCurrentDate() -> Date {
+    private static var overriddenDate: Date? {
         if let dateStr = ProcessInfo.processInfo.environment[uiTestingDateKey] {
             let df = DateFormatter()
             df.dateFormat = "dd MMM yyyy"
@@ -40,6 +43,15 @@ struct DaysOffApp: App {
                 return date
             }
         }
-        return Date()
+        return nil
+    }
+
+    private static func createSharedModelContainer() -> ModelContainer {
+        do {
+            let schema = Schema([DayOffModel.self])
+            return try ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema)])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
     }
 }

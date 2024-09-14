@@ -11,7 +11,7 @@ final class DaysOffUITests: XCTestCase {
     static let uiTestingResetKey = "UI_TESTING_RESET"
     static let uiTestingDateKey = "UI_TESTING_DATE"
 
-    private func resetApp(currentDateStr: String? = nil) -> XCUIApplication {
+    private func resetApp(currentDateStr: String = "16 Sep 2024") -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments.append(Self.uiTestingResetKey)
         app.launchEnvironment[Self.uiTestingDateKey] = currentDateStr
@@ -43,25 +43,29 @@ final class DaysOffUITests: XCTestCase {
         let firstModificationText = app.staticTexts["Days Left: 25 days"]
         XCTAssert(firstModificationText.exists)
 
+        let dateSelectorButton = app.datePickers.firstMatch.buttons["Date Picker"]
+        dateSelectorButton.tap()
+
+        let nextDateButton = app.buttons["Tuesday 17 September"]
+        nextDateButton.tap()
+
+        app.buttons["PopoverDismissRegion"].tap()
+
         let takeHalfDayButton = app.buttons["Take 1/2 Day"]
         takeHalfDayButton.tap()
 
         let secondModificationText = app.staticTexts["Days Left: 24.5 days"]
         XCTAssert(secondModificationText.exists)
 
+        let daysTakenList = app.collectionViews.firstMatch
+        XCTAssert(daysTakenList.staticTexts["DAYS TAKEN"].exists)
+        XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 0.5 day"].exists)
+        XCTAssert(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
+
         app.launchArguments.removeAll()
         app.launch()
 
         let rememberedDaysOffText = app.staticTexts["Days Left: 24.5 days"]
         XCTAssert(rememberedDaysOffText.exists)
-    }
-
-    @MainActor
-    func test_appShowsDateSelector() throws {
-        let dateStr = "15 Sep 2024"
-        let app = resetApp(currentDateStr: dateStr)
-
-        let dateSelectorButton = app.datePickers.firstMatch.buttons["Date Picker"]
-        XCTAssertEqual(dateSelectorButton.value as? String, dateStr)
     }
 }
