@@ -10,15 +10,18 @@ import Foundation
 @Observable
 class DaysOffModel {
     var numDaysToTake: Float
+    var dateToTake: Date
     private static let numDaysKey = "Num Days Left"
     private static let defaultDaysToTake: Float = 26
 
-    init() {
+    init(currentDate: Date = Date()) {
         if let savedNumDaysToTake = UserDefaults.standard.value(forKey: Self.numDaysKey) as? Float {
             numDaysToTake = savedNumDaysToTake
         } else {
             numDaysToTake = Self.defaultDaysToTake
         }
+
+        dateToTake = currentDate
     }
 
     func takeDay() {

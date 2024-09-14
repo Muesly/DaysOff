@@ -10,22 +10,36 @@ import SwiftData
 
 @main
 struct DaysOffApp: App {
+    let currentDate: Date
+    static let uiTestingResetKey = "UI_TESTING_RESET"
+    static let uiTestingDateKey = "UI_TESTING_DATE"
 
     init() {
-        if ProcessInfo.processInfo.arguments.contains("UI_TESTING") {
-            resetApplication()
-        }
+        Self.resetApplication()
+        self.currentDate = Self.deriveCurrentDate()
     }
 
     var body: some Scene {
         WindowGroup {
-            DaysOffView()
+            DaysOffView(model: DaysOffModel(currentDate: currentDate))
         }
     }
 
-    private func resetApplication() {
-        if let bundleID = Bundle.main.bundleIdentifier {
+    private static func resetApplication() {
+        if ProcessInfo.processInfo.arguments.contains(Self.uiTestingResetKey),
+           let bundleID = Bundle.main.bundleIdentifier {
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
         }
+    }
+
+    private static func deriveCurrentDate() -> Date {
+        if let dateStr = ProcessInfo.processInfo.environment[uiTestingDateKey] {
+            let df = DateFormatter()
+            df.dateFormat = "dd MMM yyyy"
+            if let date = df.date(from: dateStr) {
+                return date
+            }
+        }
+        return Date()
     }
 }

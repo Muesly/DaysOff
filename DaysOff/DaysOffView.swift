@@ -9,12 +9,17 @@ import SwiftUI
 import SwiftData
 
 struct DaysOffView: View {
-    @State var model: DaysOffModel = DaysOffModel()
+    @State var model: DaysOffModel
 
     var body: some View {
         NavigationStack {
             VStack {
                 Text("Days Left: \(model.numDaysToTake, format: .number.precision(.fractionLength(0...1))) days")
+                DatePicker(
+                        "Day To Take",
+                        selection: $model.dateToTake,
+                        displayedComponents: [.date]
+                    )
                 Button("Take 1 Day") {
                     model.takeDay()
                 }
@@ -28,5 +33,5 @@ struct DaysOffView: View {
 }
 
 #Preview {
-    DaysOffView()
+    DaysOffView(model: DaysOffModel())
 }
