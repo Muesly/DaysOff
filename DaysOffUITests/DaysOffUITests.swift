@@ -8,11 +8,13 @@
 import XCTest
 
 final class DaysOffUITests: XCTestCase {
+    static let uiTestingNoAnimationsKey = "UI_TESTING_NO_ANIMATIONS"
     static let uiTestingResetKey = "UI_TESTING_RESET"
     static let uiTestingDateKey = "UI_TESTING_DATE"
 
     private func resetApp(currentDateStr: String = "16 Sep 2024") -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchArguments.append(Self.uiTestingNoAnimationsKey)
         app.launchArguments.append(Self.uiTestingResetKey)
         app.launchEnvironment[Self.uiTestingDateKey] = currentDateStr
         app.launch()
@@ -81,20 +83,32 @@ final class DaysOffUITests: XCTestCase {
         app.buttons["Take 1 Day"].tap()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.changeMonth(forwards: false)
-        app.buttons["Thursday 8 August"].tap()
+        app.changeMonth(forwards: false, times: 9)
+        app.buttons["Friday 29 December"].tap()
         app.buttons["PopoverDismissRegion"].tap()
         app.buttons["Take 1 Day"].tap()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.changeMonth(forwards: false)
+        app.changeMonth(forwards: true, times: 7)
         app.buttons["Wednesday 31 July"].tap()
         app.buttons["PopoverDismissRegion"].tap()
         app.buttons["Take 1 Day"].tap()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.changeMonth(forwards: true, times: 3)
+        app.changeMonth(forwards: true)
+        app.buttons["Thursday 8 August"].tap()
+        app.buttons["PopoverDismissRegion"].tap()
+        app.buttons["Take 1 Day"].tap()
+
+        app.datePickers.firstMatch.buttons["Date Picker"].tap()
+        app.changeMonth(forwards: true, times: 2)
         app.buttons["Tuesday 1 October"].tap()
+        app.buttons["PopoverDismissRegion"].tap()
+        app.buttons["Take 1 Day"].tap()
+
+        app.datePickers.firstMatch.buttons["Date Picker"].tap()
+        app.changeMonth(forwards: true, times: 3)
+        app.buttons["Thursday 2 January"].tap()
         app.buttons["PopoverDismissRegion"].tap()
         app.buttons["Take 1 Day"].tap()
 

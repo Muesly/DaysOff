@@ -26,12 +26,27 @@ struct DaysOffView: View {
         return dateFormatter
     }
 
+    private var startOfYear: Date {
+        let components = Calendar.current.dateComponents([.year], from: currentDate)
+        guard let startOfYear = Calendar.current.date(from: components) else {
+            fatalError("Expects to derives start of year")
+        }
+        return startOfYear
+    }
+
+    private var startOfNextYear: Date {
+        guard let startOfNextYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
+            fatalError("Expects to derives start of year")
+        }
+        return startOfNextYear
+    }
+
     private var daysTaken: Float {
-        daysOff.reduce(0.0, { $0 + (($1.date <= currentDate) ? $1.type.dayLength : 0) })
+        daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= currentDate) ? $1.type.dayLength : 0) })
     }
 
     private var daysReserved: Float {
-        daysOff.reduce(0.0, { $0 + (($1.date > currentDate) ? $1.type.dayLength : 0) })
+        daysOff.reduce(0.0, { $0 + (($1.date > currentDate) && ($1.date < startOfNextYear) ? $1.type.dayLength : 0) })
     }
 
     private var daysLeft: Float {

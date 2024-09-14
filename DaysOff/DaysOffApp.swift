@@ -13,6 +13,7 @@ struct DaysOffApp: App {
     let currentDate: Date
     let sharedModelContainer: ModelContainer
 
+    static let uiTestingNoAnimationsKey = "UI_TESTING_NO_ANIMATIONS"
     static let uiTestingResetKey = "UI_TESTING_RESET"
     static let uiTestingDateKey = "UI_TESTING_DATE"
 
@@ -22,6 +23,10 @@ struct DaysOffApp: App {
 
         if Self.isResettingApplication {
             try? sharedModelContainer.mainContext.delete(model: DayOffModel.self)
+        }
+
+        if Self.disableAnimations {
+            UIView.setAnimationsEnabled(false)
         }
     }
 
@@ -33,6 +38,10 @@ struct DaysOffApp: App {
 
     private static var isResettingApplication: Bool {
         ProcessInfo.processInfo.arguments.contains(Self.uiTestingResetKey)
+    }
+
+    private static var disableAnimations: Bool {
+        ProcessInfo.processInfo.arguments.contains(Self.uiTestingNoAnimationsKey)
     }
 
     private static var overriddenDate: Date? {
