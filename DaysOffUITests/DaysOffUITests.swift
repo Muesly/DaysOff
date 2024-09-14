@@ -47,7 +47,7 @@ final class DaysOffUITests: XCTestCase {
         XCTAssert(app.staticTexts["Days Left: 24.5 days"].exists)
 
         let daysTakenList = app.collectionViews.firstMatch
-        XCTAssert(daysTakenList.staticTexts["DAYS TAKEN"].exists)
+        XCTAssert(daysTakenList.staticTexts["This Month"].exists)
         XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 0.5 day"].exists)
         XCTAssert(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
 

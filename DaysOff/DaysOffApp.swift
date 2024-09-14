@@ -27,7 +27,7 @@ struct DaysOffApp: App {
 
     var body: some Scene {
         WindowGroup {
-            DaysOffView(dateToTake: currentDate)
+            DaysOffView(currentDate: currentDate)
         }.modelContainer(sharedModelContainer)
     }
 
