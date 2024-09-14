@@ -34,38 +34,33 @@ final class DaysOffUITests: XCTestCase {
     func test_appTakeDayAndThenHalfDay_andIsRemembered() throws {
         let app = resetApp()
 
-        let initialDaysOffText = app.staticTexts["Days Left: 26 days"]
-        XCTAssert(initialDaysOffText.exists)
+        XCTAssert(app.staticTexts["Days Left: 26 days"].exists)
 
-        let takeDayButton = app.buttons["Take 1 Day"]
-        takeDayButton.tap()
+        app.buttons["Take 1 Day"].tap()
+        XCTAssert(app.staticTexts["Days Left: 25 days"].exists)
 
-        let firstModificationText = app.staticTexts["Days Left: 25 days"]
-        XCTAssert(firstModificationText.exists)
-
-        let dateSelectorButton = app.datePickers.firstMatch.buttons["Date Picker"]
-        dateSelectorButton.tap()
-
-        let nextDateButton = app.buttons["Tuesday 17 September"]
-        nextDateButton.tap()
-
+        app.datePickers.firstMatch.buttons["Date Picker"].tap()
+        app.buttons["Tuesday 17 September"].tap()
         app.buttons["PopoverDismissRegion"].tap()
 
-        let takeHalfDayButton = app.buttons["Take 1/2 Day"]
-        takeHalfDayButton.tap()
-
-        let secondModificationText = app.staticTexts["Days Left: 24.5 days"]
-        XCTAssert(secondModificationText.exists)
+        app.buttons["Take 1/2 Day"].tap()
+        XCTAssert(app.staticTexts["Days Left: 24.5 days"].exists)
 
         let daysTakenList = app.collectionViews.firstMatch
         XCTAssert(daysTakenList.staticTexts["DAYS TAKEN"].exists)
         XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 0.5 day"].exists)
         XCTAssert(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
 
+        // Check can only add one entry per day by changing a day from half to 1 day
+        app.buttons["Take 1 Day"].tap()
+        XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 1 day"].exists)
+        XCTAssert(app.staticTexts["Days Left: 24 days"].exists)
+
+        // Restart app without resetting
         app.launchArguments.removeAll()
         app.launch()
 
-        let rememberedDaysOffText = app.staticTexts["Days Left: 24.5 days"]
-        XCTAssert(rememberedDaysOffText.exists)
+        // Check it remembers days
+        XCTAssert(app.staticTexts["Days Left: 24 days"].exists)
     }
 }

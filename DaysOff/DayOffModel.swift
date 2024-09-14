@@ -22,7 +22,7 @@ enum DayOffType: Codable {
 
 @Model
 final class DayOffModel {
-    var date: Date
+    @Attribute(.unique) var date: Date
     var type: DayOffType
 
     init(date: Date, type: DayOffType) {
