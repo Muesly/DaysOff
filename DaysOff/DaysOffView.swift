@@ -74,10 +74,10 @@ struct DaysOffView: View {
                 }
 
                 List {
-                    DaysOffSection(heading: "Future Months", daysOff: Binding(get: futureDays.reversed, set: { _ in }))
-                    DaysOffSection(heading: "This Month", daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }))
-                    DaysOffSection(heading: "Last Month", daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }))
-                    DaysOffSection(heading: "Previous Months", daysOff: Binding(get: previousDays.reversed, set: { _ in }))
+                    DaysOffSection(heading: "Future Months", colour: .gray, daysOff: Binding(get: futureDays.reversed, set: { _ in }))
+                    DaysOffSection(heading: "This Month", colour: .black, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }))
+                    DaysOffSection(heading: "Last Month", colour: .black, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }))
+                    DaysOffSection(heading: "Previous Months", colour: .gray, daysOff: Binding(get: previousDays.reversed, set: { _ in }))
                 }
             }
             .navigationTitle("Days Off in 2024")
@@ -100,12 +100,14 @@ struct DaysOffSection: View {
     @Environment(\.modelContext) private var modelContext
 
     let heading: String
+    let colour: Color
     @Binding var daysOff: [DayOffModel]
 
     var body: some View {
         Section {
             ForEach(daysOff) {
                 Text("\(DaysOffView.dateFormatter.string(from: $0.date)) - \($0.type.dayLength, format: DaysOffView.oneDPFormat) day")
+                    .foregroundStyle(colour)
             }
             .onDelete(perform: deleteDayOff)
         } header: {
