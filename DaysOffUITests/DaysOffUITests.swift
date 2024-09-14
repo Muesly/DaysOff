@@ -20,4 +20,25 @@ final class DaysOffUITests: XCTestCase {
         let daysOffText = app.staticTexts["Days Left: 26 days"]
         XCTAssert(daysOffText.exists)
     }
+
+    @MainActor
+    func test_appTakeDayAndThenHalfDay_andIsRemembered() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        let initialDaysOffText = app.staticTexts["Days Left: 26 days"]
+        XCTAssert(initialDaysOffText.exists)
+
+        let takeDayButton = app.buttons["Take 1 Day"]
+        takeDayButton.tap()
+
+        let firstModificationText = app.staticTexts["Days Left: 25 days"]
+        XCTAssert(firstModificationText.exists)
+
+        let takeHalfDayButton = app.buttons["Take 1/2 Day"]
+        takeHalfDayButton.tap()
+
+        let secondModificationText = app.staticTexts["Days Left: 24.5 days"]
+        XCTAssert(secondModificationText.exists)
+    }
 }

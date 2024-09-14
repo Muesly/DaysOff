@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "37BEA508-E5AB-48F1-813F-FEAC55DEE4D4",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:DaysOff.xcodeproj",
+      "identifier" : "DD20D8E92C95ADBD0021F78E",
+      "name" : "DaysOffUITests"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:DaysOff.xcodeproj",
+        "identifier" : "DD20D8DF2C95ADBD0021F78E",
+        "name" : "DaysOffTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:DaysOff.xcodeproj",
+        "identifier" : "DD20D8E92C95ADBD0021F78E",
+        "name" : "DaysOffUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -27,6 +27,7 @@
 		DD20D8CE2C95ADBC0021F78E /* DaysOff.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DaysOff.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD20D8E02C95ADBD0021F78E /* DaysOffTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DaysOffTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD20D8EA2C95ADBD0021F78E /* DaysOffUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DaysOffUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD67DF422C95C59A00FEED99 /* DaysOff.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DaysOff.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +76,7 @@
 		DD20D8C52C95ADBC0021F78E = {
 			isa = PBXGroup;
 			children = (
+				DD67DF422C95C59A00FEED99 /* DaysOff.xctestplan */,
 				DD20D8D02C95ADBC0021F78E /* DaysOff */,
 				DD20D8E32C95ADBD0021F78E /* DaysOffTests */,
 				DD20D8ED2C95ADBD0021F78E /* DaysOffUITests */,

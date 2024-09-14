@@ -9,10 +9,20 @@ import SwiftUI
 import SwiftData
 
 struct DaysOffView: View {
+    @State var model: DaysOffModel = DaysOffModel()
+
     var body: some View {
         NavigationStack {
-            Text("Days Left: 26 days")
-                .navigationTitle("Days Off in 2024")
+            VStack {
+                Text("Days Left: \(model.numDaysToTake, format: .number.precision(.fractionLength(0...1))) days")
+                Button("Take 1 Day") {
+                    model.takeDay()
+                }
+                Button("Take 1/2 Day") {
+                    model.takeHalfDay()
+                }
+            }
+            .navigationTitle("Days Off in 2024")
         }
     }
 }
