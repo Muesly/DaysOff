@@ -26,8 +26,24 @@ struct DaysOffView: View {
         return dateFormatter
     }
 
+    private var daysTaken: Float {
+        daysOff.reduce(0.0, { $0 + (($1.date <= currentDate) ? $1.type.dayLength : 0) })
+    }
+
+    private var daysReserved: Float {
+        daysOff.reduce(0.0, { $0 + (($1.date > currentDate) ? $1.type.dayLength : 0) })
+    }
+
     private var daysLeft: Float {
-        daysOff.reduce(numDaysToTake, { $0 - $1.type.dayLength })
+        numDaysToTake - daysTaken
+    }
+
+    private func dayStr(for number: Float) -> String {
+        (number == 1) ? "day" : "days"
+    }
+
+    private var daysToPlan: Float {
+        daysLeft - daysReserved
     }
 
     init(currentDate: Date) {
@@ -60,7 +76,11 @@ struct DaysOffView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Days Left: \(daysLeft, format: Self.oneDPFormat) days")
+                Text("Starting Total: \(numDaysToTake, format: Self.oneDPFormat) \(dayStr(for: numDaysToTake))")
+                Text("Days Taken So Far: \(daysTaken, format: Self.oneDPFormat) \(dayStr(for: daysTaken))")
+                Text("Days Left: \(daysLeft, format: Self.oneDPFormat) \(dayStr(for: daysLeft))")
+                Text("Days Reserved: \(daysReserved, format: Self.oneDPFormat) \(dayStr(for: daysReserved))")
+                Text("Days To Plan: \(daysToPlan, format: Self.oneDPFormat) \(dayStr(for: daysLeft))")
                 DatePicker(
                         "Day To Take",
                         selection: $dateToTake,

@@ -44,7 +44,7 @@ final class DaysOffUITests: XCTestCase {
         app.buttons["PopoverDismissRegion"].tap()
 
         app.buttons["Take 1/2 Day"].tap()
-        XCTAssert(app.staticTexts["Days Left: 24.5 days"].exists)
+        XCTAssert(app.staticTexts["Days Reserved: 0.5 days"].exists)
 
         let daysTakenList = app.collectionViews.firstMatch
         XCTAssert(daysTakenList.staticTexts["This Month"].exists)
@@ -54,13 +54,13 @@ final class DaysOffUITests: XCTestCase {
         // Check can only add one entry per day by changing a day from half to 1 day
         app.buttons["Take 1 Day"].tap()
         XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 1 day"].exists)
-        XCTAssert(app.staticTexts["Days Left: 24 days"].exists)
+        XCTAssert(app.staticTexts["Days Reserved: 1 day"].exists)
 
         // Swipe to delete
         let entryToDelete = daysTakenList.staticTexts["Tuesday 17 September 2024 - 1 day"]
         entryToDelete.swipeLeft()
         app.buttons["Delete"].tap()
-        XCTAssert(app.staticTexts["Days Left: 25 days"].exists)
+        XCTAssert(app.staticTexts["Days Reserved: 0 days"].exists)
 
         // Restart app without resetting
         app.launchArguments.removeAll()
@@ -75,27 +75,25 @@ final class DaysOffUITests: XCTestCase {
         let app = resetApp()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
+        sleep(1)
         app.buttons["Tuesday 17 September"].tap()
         app.buttons["PopoverDismissRegion"].tap()
         app.buttons["Take 1 Day"].tap()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.buttons["Previous Month"].tap()
+        app.changeMonth(forwards: false)
         app.buttons["Thursday 8 August"].tap()
         app.buttons["PopoverDismissRegion"].tap()
         app.buttons["Take 1 Day"].tap()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.buttons["Previous Month"].tap()
+        app.changeMonth(forwards: false)
         app.buttons["Wednesday 31 July"].tap()
         app.buttons["PopoverDismissRegion"].tap()
         app.buttons["Take 1 Day"].tap()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.buttons["Next Month"].tap()
-        app.buttons["Next Month"].tap()
-        app.buttons["Next Month"].tap()
-        sleep(1)  // 8th October was being pressed rather than 1st
+        app.changeMonth(forwards: true, times: 3)
         app.buttons["Tuesday 1 October"].tap()
         app.buttons["PopoverDismissRegion"].tap()
         app.buttons["Take 1 Day"].tap()
@@ -112,5 +110,20 @@ final class DaysOffUITests: XCTestCase {
 
         XCTAssert(daysTakenList.staticTexts["Previous Months"].exists)
         XCTAssert(daysTakenList.staticTexts["Wednesday 31 July 2024 - 1 day"].exists)
+
+        XCTAssert(app.staticTexts["Starting Total: 26 days"].exists)
+        XCTAssert(app.staticTexts["Days Taken So Far: 2 days"].exists)
+        XCTAssert(app.staticTexts["Days Left: 24 days"].exists)
+        XCTAssert(app.staticTexts["Days Reserved: 2 days"].exists)
+        XCTAssert(app.staticTexts["Days To Plan: 22 days"].exists)
+    }
+}
+
+extension XCUIApplication {
+    fileprivate func changeMonth(forwards: Bool, times: Int = 1) {
+        for _ in 0..<times {
+            self.buttons["\(forwards ? "Next" : "Previous") Month"].tap()
+        }
+        sleep(1)
     }
 }
