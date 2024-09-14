@@ -12,6 +12,7 @@ final class DaysOffUITests: XCTestCase {
     @MainActor
     func test_appInitialView() throws {
         let app = XCUIApplication()
+        app.launchArguments.append("UI_TESTING")
         app.launch()
 
         let navigationTitle = app.navigationBars["Days Off in 2024"].staticTexts["Days Off in 2024"]
@@ -24,6 +25,7 @@ final class DaysOffUITests: XCTestCase {
     @MainActor
     func test_appTakeDayAndThenHalfDay_andIsRemembered() throws {
         let app = XCUIApplication()
+        app.launchArguments.append("UI_TESTING")
         app.launch()
 
         let initialDaysOffText = app.staticTexts["Days Left: 26 days"]
@@ -40,5 +42,11 @@ final class DaysOffUITests: XCTestCase {
 
         let secondModificationText = app.staticTexts["Days Left: 24.5 days"]
         XCTAssert(secondModificationText.exists)
+
+        app.launchArguments.removeAll()
+        app.launch()
+
+        let rememberedDaysOffText = app.staticTexts["Days Left: 24.5 days"]
+        XCTAssert(rememberedDaysOffText.exists)
     }
 }

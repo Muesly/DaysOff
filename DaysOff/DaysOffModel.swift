@@ -10,17 +10,27 @@ import Foundation
 @Observable
 class DaysOffModel {
     var numDaysToTake: Float
+    private static let numDaysKey = "Num Days Left"
     private static let defaultDaysToTake: Float = 26
 
     init() {
-        numDaysToTake = Self.defaultDaysToTake
+        if let savedNumDaysToTake = UserDefaults.standard.value(forKey: Self.numDaysKey) as? Float {
+            numDaysToTake = savedNumDaysToTake
+        } else {
+            numDaysToTake = Self.defaultDaysToTake
+        }
     }
 
     func takeDay() {
-        numDaysToTake -= 1
+        takeDay(amount: 1)
     }
 
     func takeHalfDay() {
-        numDaysToTake -= 0.5
+        takeDay(amount: 0.5)
+    }
+
+    private func takeDay(amount: Float) {
+        numDaysToTake -= amount
+        UserDefaults.standard.set(numDaysToTake, forKey: Self.numDaysKey)
     }
 }
