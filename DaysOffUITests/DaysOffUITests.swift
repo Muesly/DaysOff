@@ -56,11 +56,17 @@ final class DaysOffUITests: XCTestCase {
         XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 1 day"].exists)
         XCTAssert(app.staticTexts["Days Left: 24 days"].exists)
 
+        // Swipe to delete
+        let entryToDelete = daysTakenList.staticTexts["Tuesday 17 September 2024 - 1 day"]
+        entryToDelete.swipeLeft()
+        app.buttons["Delete"].tap()
+        XCTAssert(app.staticTexts["Days Left: 25 days"].exists)
+
         // Restart app without resetting
         app.launchArguments.removeAll()
         app.launch()
 
         // Check it remembers days
-        XCTAssert(app.staticTexts["Days Left: 24 days"].exists)
+        XCTAssert(app.staticTexts["Days Left: 25 days"].exists)
     }
 }

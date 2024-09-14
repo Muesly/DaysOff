@@ -97,6 +97,8 @@ struct DaysOffView: View {
 }
 
 struct DaysOffSection: View {
+    @Environment(\.modelContext) private var modelContext
+
     let heading: String
     @Binding var daysOff: [DayOffModel]
 
@@ -105,8 +107,17 @@ struct DaysOffSection: View {
             ForEach(daysOff) {
                 Text("\(DaysOffView.dateFormatter.string(from: $0.date)) - \($0.type.dayLength, format: DaysOffView.oneDPFormat) day")
             }
+            .onDelete(perform: deleteDayOff)
         } header: {
             Text(heading)
+        }
+    }
+
+    private func deleteDayOff(offsets: IndexSet) {
+        withAnimation {
+            for index in offsets {
+                modelContext.delete(daysOff[index])
+            }
         }
     }
 }
