@@ -91,6 +91,23 @@ struct DaysOffView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
+                HStack(spacing: 20) {
+                    Spacer()
+                    Button {
+
+                    } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                    Text("2024")
+                        .font(.title2)
+                    Button {
+
+                    } label: {
+                        Image(systemName: "chevron.right")
+                    }
+                    Spacer()
+                }
+                .padding(.top, 20)
                 VStack(alignment: .leading) {
                     Text("Starting Total: \(numDaysToTake, format: Self.oneDPFormat) \(dayStr(for: numDaysToTake))")
                     VStack(alignment: .leading) {
@@ -125,7 +142,7 @@ struct DaysOffView: View {
                     DaysOffSection(heading: "Previous Months", colour: .gray, daysOff: Binding(get: previousDays.reversed, set: { _ in }))
                 }
             }
-            .navigationTitle("Days Off in 2024")
+            .navigationTitle("Days Off")
         }
     }
 

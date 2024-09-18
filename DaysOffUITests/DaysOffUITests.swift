@@ -25,8 +25,11 @@ final class DaysOffUITests: XCTestCase {
     func test_appInitialView() throws {
         let app = resetApp()
 
-        let navigationTitle = app.navigationBars["Days Off in 2024"].staticTexts["Days Off in 2024"]
+        let navigationTitle = app.navigationBars["Days Off"].staticTexts["Days Off"]
         XCTAssert(navigationTitle.exists)
+
+        let yearSelectorText = app.staticTexts["2024"]
+        XCTAssert(yearSelectorText.exists)
 
         let daysOffText = app.staticTexts["Days Left: 26 days"]
         XCTAssert(daysOffText.exists)
