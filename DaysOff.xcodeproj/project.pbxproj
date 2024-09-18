@@ -30,9 +30,22 @@
 		DD67DF422C95C59A00FEED99 /* DaysOff.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DaysOff.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DDAD7EB42C9B65CD00076DE3 /* Exceptions for "DaysOff" folder in "DaysOffUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				UITestingKeys.swift,
+			);
+			target = DD20D8E92C95ADBD0021F78E /* DaysOffUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DD20D8D02C95ADBC0021F78E /* DaysOff */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DDAD7EB42C9B65CD00076DE3 /* Exceptions for "DaysOff" folder in "DaysOffUITests" target */,
+			);
 			path = DaysOff;
 			sourceTree = "<group>";
 		};

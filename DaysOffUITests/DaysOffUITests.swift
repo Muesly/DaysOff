@@ -8,15 +8,11 @@
 import XCTest
 
 final class DaysOffUITests: XCTestCase {
-    static let uiTestingNoAnimationsKey = "UI_TESTING_NO_ANIMATIONS"
-    static let uiTestingResetKey = "UI_TESTING_RESET"
-    static let uiTestingDateKey = "UI_TESTING_DATE"
-
     private func resetApp(currentDateStr: String = "16 Sep 2024") -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments.append(Self.uiTestingNoAnimationsKey)
-        app.launchArguments.append(Self.uiTestingResetKey)
-        app.launchEnvironment[Self.uiTestingDateKey] = currentDateStr
+        app.launchArguments.append(UITestingKeys.noAnimationsKey.rawValue)
+        app.launchArguments.append(UITestingKeys.resetKey.rawValue)
+        app.launchEnvironment[UITestingKeys.dateKey.rawValue] = currentDateStr
         app.launch()
         return app
     }

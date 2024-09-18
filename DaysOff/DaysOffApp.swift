@@ -13,10 +13,6 @@ struct DaysOffApp: App {
     let currentDate: Date
     let sharedModelContainer: ModelContainer
 
-    static let uiTestingNoAnimationsKey = "UI_TESTING_NO_ANIMATIONS"
-    static let uiTestingResetKey = "UI_TESTING_RESET"
-    static let uiTestingDateKey = "UI_TESTING_DATE"
-
     init() {
         self.currentDate = Self.overriddenDate ?? Date()
         self.sharedModelContainer = Self.createSharedModelContainer()
@@ -37,15 +33,15 @@ struct DaysOffApp: App {
     }
 
     private static var isResettingApplication: Bool {
-        ProcessInfo.processInfo.arguments.contains(Self.uiTestingResetKey)
+        ProcessInfo.processInfo.arguments.contains(UITestingKeys.resetKey.rawValue)
     }
 
     private static var disableAnimations: Bool {
-        ProcessInfo.processInfo.arguments.contains(Self.uiTestingNoAnimationsKey)
+        ProcessInfo.processInfo.arguments.contains(UITestingKeys.noAnimationsKey.rawValue)
     }
 
     private static var overriddenDate: Date? {
-        if let dateStr = ProcessInfo.processInfo.environment[uiTestingDateKey] {
+        if let dateStr = ProcessInfo.processInfo.environment[UITestingKeys.dateKey.rawValue] {
             let df = DateFormatter()
             df.dateFormat = "dd MMM yyyy"
             if let date = df.date(from: dateStr) {
