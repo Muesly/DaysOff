@@ -12,6 +12,7 @@ final class DaysOffUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments.append(UITestingKeys.noAnimationsKey.rawValue)
         app.launchArguments.append(UITestingKeys.resetKey.rawValue)
+        app.launchArguments.append(UITestingKeys.seededDataKey.rawValue)
         app.launchEnvironment[UITestingKeys.dateKey.rawValue] = currentDateStr
         app.launch()
         return app
