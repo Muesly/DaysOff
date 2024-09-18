@@ -90,24 +90,34 @@ struct DaysOffView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                Text("Starting Total: \(numDaysToTake, format: Self.oneDPFormat) \(dayStr(for: numDaysToTake))")
-                Text("Days Taken So Far: \(daysTaken, format: Self.oneDPFormat) \(dayStr(for: daysTaken))")
-                Text("Days Left: \(daysLeft, format: Self.oneDPFormat) \(dayStr(for: daysLeft))")
-                Text("Days Reserved: \(daysReserved, format: Self.oneDPFormat) \(dayStr(for: daysReserved))")
-                Text("Days To Plan: \(daysToPlan, format: Self.oneDPFormat) \(dayStr(for: daysLeft))")
-                DatePicker(
-                        "Day To Take",
+            VStack(alignment: .leading) {
+                VStack(alignment: .leading) {
+                    Text("Starting Total: \(numDaysToTake, format: Self.oneDPFormat) \(dayStr(for: numDaysToTake))")
+                    VStack(alignment: .leading) {
+                        Text("Days Taken So Far: \(daysTaken, format: Self.oneDPFormat) \(dayStr(for: daysTaken))")
+                        Text("Days Left: \(daysLeft, format: Self.oneDPFormat) \(dayStr(for: daysLeft))")
+                            .bold()
+                        VStack(alignment: .leading) {
+                            Text("Days Reserved: \(daysReserved, format: Self.oneDPFormat) \(dayStr(for: daysReserved))")
+                            Text("Days To Plan: \(daysToPlan, format: Self.oneDPFormat) \(dayStr(for: daysLeft))")
+                        }.padding(.leading, 20)
+                    }.padding(.leading, 20)
+                }
+                .padding()
+                HStack {
+                    DatePicker(
+                        "",
                         selection: $dateToTake,
                         displayedComponents: [.date]
                     )
-                Button("Take 1 Day") {
-                    takeDay(dateToTake, type: .fullDay)
+                    Button("Take 1 Day") {
+                        takeDay(dateToTake, type: .fullDay)
+                    }
+                    Button("Take 1/2 Day") {
+                        takeDay(dateToTake, type: .halfDay)
+                    }
                 }
-                Button("Take 1/2 Day") {
-                    takeDay(dateToTake, type: .halfDay)
-                }
-
+                .padding()
                 List {
                     DaysOffSection(heading: "Future Months", colour: .gray, daysOff: Binding(get: futureDays.reversed, set: { _ in }))
                     DaysOffSection(heading: "This Month", colour: .black, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }))

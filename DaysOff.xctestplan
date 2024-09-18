@@ -22,7 +22,7 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:DaysOff.xcodeproj",
         "identifier" : "DD20D8DF2C95ADBD0021F78E",
@@ -30,7 +30,6 @@
       }
     },
     {
-      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:DaysOff.xcodeproj",
         "identifier" : "DD20D8E92C95ADBD0021F78E",
