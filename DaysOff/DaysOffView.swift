@@ -27,7 +27,7 @@ struct DaysOffView: View {
             VStack(alignment: .leading) {
                 YearSelectorView(year: $year)
                     .padding(.top, 20)
-                YearView(currentDate: currentDate, year: year)
+                YearView(currentDate: $currentDate, year: $year)
             }
             .navigationTitle("Days Off")
         }

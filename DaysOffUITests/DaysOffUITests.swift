@@ -8,12 +8,15 @@
 import XCTest
 
 final class DaysOffUITests: XCTestCase {
-    private func resetApp(currentDateStr: String = "16 Sep 2024") -> XCUIApplication {
+    private func resetApp(currentDateStr: String = "16 Sep 2024",
+                          seed: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments.append(UITestingKeys.noAnimationsKey.rawValue)
         app.launchArguments.append(UITestingKeys.resetKey.rawValue)
-        app.launchArguments.append(UITestingKeys.seededDataKey.rawValue)
         app.launchEnvironment[UITestingKeys.dateKey.rawValue] = currentDateStr
+        if seed {
+            app.launchArguments.append(UITestingKeys.seededDataKey.rawValue)
+        }
         app.launch()
         return app
     }
@@ -134,15 +137,20 @@ final class DaysOffUITests: XCTestCase {
 
     @MainActor
     func test_changingYears() throws {
-        let app = resetApp()
+        let app = resetApp(seed: true)
 
         let startingYearText = app.staticTexts["2024"]
         XCTAssert(startingYearText.exists)
 
+        let daysTakenList = app.collectionViews.firstMatch
+        XCTAssertTrue(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
+        XCTAssertFalse(daysTakenList.staticTexts["Wednesday 1 January 2025 - 1 day"].exists)
+
         app.buttons["Next Year"].tap()
         let nextYearText = app.staticTexts["2025"]
         XCTAssert(nextYearText.exists)
-
+        XCTAssertFalse(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
+        XCTAssertTrue(daysTakenList.staticTexts["Wednesday 1 January 2025 - 1 day"].exists)
     }
 }
 

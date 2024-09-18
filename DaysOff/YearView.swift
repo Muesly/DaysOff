@@ -12,8 +12,8 @@ struct YearView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var dateToTake: Date
     @State private var numDaysToTake: Float = 26
-    @State private var year: Int
-    @State private var currentDate: Date
+    @Binding private var year: Int
+    @Binding private var currentDate: Date
 
     @Query private var daysOff: [DayOffModel]
     @Query private var futureDays: [DayOffModel]
@@ -27,27 +27,27 @@ struct YearView: View {
         return dateFormatter
     }
 
-    private var startOfYear: Date {
-        let components = Calendar.current.dateComponents([.year], from: currentDate)
-        guard let startOfYear = Calendar.current.date(from: components) else {
-            fatalError("Expects to derives start of year")
-        }
-        return startOfYear
-    }
-
-    private var startOfNextYear: Date {
-        guard let startOfNextYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
-            fatalError("Expects to derives start of year")
-        }
-        return startOfNextYear
-    }
-
     private var daysTaken: Float {
-        daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= currentDate) ? $1.type.dayLength : 0) })
+        guard let startOfYear = Calendar.current.date(from: DateComponents(year: year)),
+              let endOfYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
+            fatalError("Expects to derives start of year")
+        }
+        let currentYearComponents = Calendar.current.dateComponents([.year], from: currentDate)
+        let maxDate = (currentYearComponents.year == year) ? currentDate : endOfYear
+        return daysOff.reduce(0.0, { $0 + ((year <= currentYearComponents.year!) && ($1.date >= startOfYear) && ($1.date <= maxDate) ? $1.type.dayLength : 0) })
     }
 
     private var daysReserved: Float {
-        daysOff.reduce(0.0, { $0 + (($1.date > currentDate) && ($1.date < startOfNextYear) ? $1.type.dayLength : 0) })
+        let components = Calendar.current.dateComponents([.year], from: currentDate)
+        guard let startOfCurrentYear = Calendar.current.date(from: components),
+              let endOfCurrentYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfCurrentYear) else {
+            fatalError("Expects to derives start of year")
+        }
+        let currentYearComponents = Calendar.current.dateComponents([.year], from: currentDate)
+
+        return daysOff.reduce(0.0, {
+            return $0 + ((year == currentYearComponents.year) && ($1.date > currentDate) && ($1.date < endOfCurrentYear) ? $1.type.dayLength : 0)
+        })
     }
 
     private var daysLeft: Float {
@@ -62,27 +62,40 @@ struct YearView: View {
         daysLeft - daysReserved
     }
 
-    init(currentDate: Date, year: Int) {
-        self.year = year
-        var components = Calendar.current.dateComponents([.year, .month, .day], from: currentDate)
-        guard let startOfDay = Calendar.current.date(from: components) else {
-            fatalError("Expects to derives start of day")
+    init(currentDate: Binding<Date>, year: Binding<Int>) {
+        _year = year
+        _currentDate = currentDate
+        self.dateToTake = currentDate.wrappedValue
+
+        guard let startOfFocusedYear = Calendar.current.date(from: DateComponents(year: year.wrappedValue)),
+              let endOfFocusedYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfFocusedYear) else {
+            fatalError("Expects to derives start of year")
         }
 
-        self.currentDate = startOfDay
-        self.dateToTake = startOfDay
-
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: currentDate.wrappedValue)
         components.day = 1
         guard let startOfCurrentMonth = Calendar.current.date(from: components),
            let startOfNextMonth = Calendar.current.date(byAdding: .month, value: 1, to: startOfCurrentMonth),
            let startOfPrevMonth = Calendar.current.date(byAdding: .month, value: -1, to: startOfCurrentMonth) else {
             fatalError("Expects to derives dates")
         }
+        let futureDays = #Predicate<DayOffModel> { $0.date >= startOfNextMonth &&
+                                                   $0.date >= startOfFocusedYear &&
+                                                   $0.date < endOfFocusedYear }
 
-        let futureDays = #Predicate<DayOffModel> { $0.date >= startOfNextMonth }
-        let thisMonthDays = #Predicate<DayOffModel> { $0.date >= startOfCurrentMonth && $0.date < startOfNextMonth }
-        let lastMonthDays = #Predicate<DayOffModel> { $0.date >= startOfPrevMonth && $0.date < startOfCurrentMonth }
-        let previousDays = #Predicate<DayOffModel> { $0.date < startOfPrevMonth }
+        let thisMonthDays = #Predicate<DayOffModel> { $0.date >= startOfCurrentMonth &&
+                                                      $0.date < startOfNextMonth &&
+                                                      $0.date >= startOfFocusedYear &&
+                                                      $0.date < endOfFocusedYear }
+
+        let lastMonthDays = #Predicate<DayOffModel> { $0.date >= startOfPrevMonth &&
+                                                      $0.date < startOfCurrentMonth &&
+                                                      $0.date >= startOfFocusedYear &&
+                                                      $0.date < endOfFocusedYear }
+
+        let previousDays = #Predicate<DayOffModel> { $0.date < startOfPrevMonth &&
+                                                     $0.date >= startOfFocusedYear &&
+                                                     $0.date < endOfFocusedYear }
 
         _daysOff = Query()
         _futureDays = Query(filter: futureDays, sort: \DayOffModel.date)
@@ -168,5 +181,5 @@ struct DaysOffSection: View {
 }
 
 #Preview {
-    YearView(currentDate: Date(), year: 2024)
+    YearView(currentDate: .constant(Date()), year: .constant(2024))
 }
