@@ -134,6 +134,19 @@ final class DaysOffUITests: XCTestCase {
         XCTAssert(app.staticTexts["Days Reserved: 2 days"].exists)
         XCTAssert(app.staticTexts["Days To Plan: 22 days"].exists)
     }
+
+    @MainActor
+    func test_changingYears() throws {
+        let app = resetApp()
+
+        let startingYearText = app.staticTexts["2024"]
+        XCTAssert(startingYearText.exists)
+
+        app.buttons["Next Year"].tap()
+        let nextYearText = app.staticTexts["2025"]
+        XCTAssert(nextYearText.exists)
+
+    }
 }
 
 extension XCUIApplication {
