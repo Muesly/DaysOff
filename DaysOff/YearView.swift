@@ -152,34 +152,6 @@ struct YearView: View {
     }
 }
 
-struct DaysOffSection: View {
-    @Environment(\.modelContext) private var modelContext
-
-    let heading: String
-    let colour: Color
-    @Binding var daysOff: [DayOffModel]
-
-    var body: some View {
-        Section {
-            ForEach(daysOff) {
-                Text("\(YearView.dateFormatter.string(from: $0.date)) - \($0.type.dayLength, format: YearView.oneDPFormat) day")
-                    .foregroundStyle(colour)
-            }
-            .onDelete(perform: deleteDayOff)
-        } header: {
-            Text(heading)
-        }
-    }
-
-    private func deleteDayOff(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(daysOff[index])
-            }
-        }
-    }
-}
-
 #Preview {
     YearView(currentDate: .constant(Date()), year: .constant(2024))
 }
