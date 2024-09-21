@@ -31,6 +31,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DD6322F92C9F108200E75E2C /* Exceptions for "DaysOff" folder in "DaysOff" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Supporting Files/Info.plist",
+			);
+			target = DD20D8CD2C95ADBC0021F78E /* DaysOff */;
+		};
 		DDAD7EB42C9B65CD00076DE3 /* Exceptions for "DaysOff" folder in "DaysOffUITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -44,6 +51,7 @@
 		DD20D8D02C95ADBC0021F78E /* DaysOff */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				DD6322F92C9F108200E75E2C /* Exceptions for "DaysOff" folder in "DaysOff" target */,
 				DDAD7EB42C9B65CD00076DE3 /* Exceptions for "DaysOff" folder in "DaysOffUITests" target */,
 			);
 			path = DaysOff;
@@ -414,7 +422,7 @@
 				DEVELOPMENT_TEAM = 83K5Y3G266;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = "DaysOff/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -444,7 +452,7 @@
 				DEVELOPMENT_TEAM = 83K5Y3G266;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = "DaysOff/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
