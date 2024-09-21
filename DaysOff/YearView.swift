@@ -12,6 +12,7 @@ struct YearView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var dateToTake: Date
     @State private var numDaysToTake: Float = 26
+    @State private var viewModel: YearViewModel
     @Binding private var year: Int
     @Binding private var currentDate: Date
 
@@ -20,12 +21,6 @@ struct YearView: View {
     @Query private var thisMonthDays: [DayOffModel]
     @Query private var lastMonthDays: [DayOffModel]
     @Query private var previousDays: [DayOffModel]
-
-    static var dateFormatter: DateFormatter {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEEE d MMMM YYYY"
-        return dateFormatter
-    }
 
     private var daysTaken: Float {
         guard let startOfYear = Calendar.current.date(from: DateComponents(year: year)),
@@ -62,10 +57,11 @@ struct YearView: View {
         daysLeft - daysReserved
     }
 
-    init(currentDate: Binding<Date>, year: Binding<Int>) {
+    init(currentDate: Binding<Date>, year: Binding<Int>, viewModel: YearViewModel) {
         _year = year
         _currentDate = currentDate
         self.dateToTake = currentDate.wrappedValue
+        self.viewModel = viewModel
 
         guard let startOfFocusedYear = Calendar.current.date(from: DateComponents(year: year.wrappedValue)),
               let endOfFocusedYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfFocusedYear) else {
@@ -106,14 +102,14 @@ struct YearView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Starting Total: \(numDaysToTake, format: Self.oneDPFormat) \(dayStr(for: numDaysToTake))")
+            Text("Starting Total: \(numDaysToTake, format: YearViewModel.oneDPFormat) \(dayStr(for: numDaysToTake))")
             VStack(alignment: .leading) {
-                Text("Days Taken So Far: \(daysTaken, format: Self.oneDPFormat) \(dayStr(for: daysTaken))")
-                Text("Days Left: \(daysLeft, format: Self.oneDPFormat) \(dayStr(for: daysLeft))")
+                Text("Days Taken So Far: \(daysTaken, format: YearViewModel.oneDPFormat) \(dayStr(for: daysTaken))")
+                Text("Days Left: \(daysLeft, format: YearViewModel.oneDPFormat) \(dayStr(for: daysLeft))")
                     .bold()
                 VStack(alignment: .leading) {
-                    Text("Days Reserved: \(daysReserved, format: Self.oneDPFormat) \(dayStr(for: daysReserved))")
-                    Text("Days To Plan: \(daysToPlan, format: Self.oneDPFormat) \(dayStr(for: daysLeft))")
+                    Text("Days Reserved: \(daysReserved, format: YearViewModel.oneDPFormat) \(dayStr(for: daysReserved))")
+                    Text("Days To Plan: \(daysToPlan, format: YearViewModel.oneDPFormat) \(dayStr(for: daysLeft))")
                 }.padding(.leading, 20)
             }.padding(.leading, 20)
         }
@@ -140,10 +136,6 @@ struct YearView: View {
         }
     }
 
-    static var oneDPFormat: FloatingPointFormatStyle<Float> {
-        .number.precision(.fractionLength(0...1))
-    }
-
     private func takeDay(_ date: Date, type: DayOffType) {
         withAnimation {
             let newItem = DayOffModel(date: date, type: type)
@@ -153,5 +145,5 @@ struct YearView: View {
 }
 
 #Preview {
-    YearView(currentDate: .constant(Date()), year: .constant(2024))
+    YearView(currentDate: .constant(Date()), year: .constant(2024), viewModel: YearViewModel())
 }
