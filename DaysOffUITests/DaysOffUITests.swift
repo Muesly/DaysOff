@@ -31,7 +31,7 @@ final class DaysOffUITests: XCTestCase {
         let yearSelectorText = app.staticTexts["2024"]
         XCTAssert(yearSelectorText.exists)
 
-        let daysOffText = app.staticTexts["Days Left: 26 days"]
+        let daysOffText = app.staticTexts["Days Left: 31 days"]
         XCTAssert(daysOffText.exists)
     }
 
@@ -39,10 +39,10 @@ final class DaysOffUITests: XCTestCase {
     func test_appTakeDayAndThenHalfDay_andIsRemembered() throws {
         let app = resetApp()
 
-        XCTAssert(app.staticTexts["Days Left: 26 days"].exists)
+        XCTAssert(app.staticTexts["Days Left: 31 days"].exists)
 
         app.buttons["Take 1 Day"].tap()
-        XCTAssert(app.staticTexts["Days Left: 25 days"].exists)
+        XCTAssert(app.staticTexts["Days Left: 30 days"].exists)
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
         app.buttons["Tuesday 17 September"].tap()
@@ -72,7 +72,7 @@ final class DaysOffUITests: XCTestCase {
         app.launch()
 
         // Check it remembers days
-        XCTAssert(app.staticTexts["Days Left: 25 days"].exists)
+        XCTAssert(app.staticTexts["Days Left: 30 days"].exists)
     }
 
     @MainActor
@@ -128,11 +128,11 @@ final class DaysOffUITests: XCTestCase {
         XCTAssert(daysTakenList.staticTexts["Previous Months"].exists)
         XCTAssert(daysTakenList.staticTexts["Wednesday 31 July 2024 - 1 day"].exists)
 
-        XCTAssert(app.staticTexts["Starting Total: 26 days"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 31 days (26 + 5)"].exists)
         XCTAssert(app.staticTexts["Days Taken So Far: 2 days"].exists)
-        XCTAssert(app.staticTexts["Days Left: 24 days"].exists)
+        XCTAssert(app.staticTexts["Days Left: 29 days"].exists)
         XCTAssert(app.staticTexts["Days Reserved: 2 days"].exists)
-        XCTAssert(app.staticTexts["Days To Plan: 22 days"].exists)
+        XCTAssert(app.staticTexts["Days To Plan: 27 days"].exists)
     }
 
     @MainActor

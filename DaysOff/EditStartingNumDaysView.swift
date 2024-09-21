@@ -1,5 +1,5 @@
 //
-//  EditStartingTotalsView.swift
+//  EditStartingNumDaysView.swift
 //  DaysOff
 //
 //  Created by Tony Short on 21/09/2024.
@@ -12,25 +12,38 @@ struct EditStartingNumDaysView: View {
     @Binding var kDays: Float
 
     var body: some View {
-        HStack {
-            VStack(alignment: .trailing) {
-                Text("Entitled Days")
-                    .padding(5)
-                Text("K Days")
-                    .padding(5)
-            }
+        GeometryReader { geometry in
             VStack(alignment: .leading) {
-                TextField("", value: $entitledDays, formatter: NumberFormatter()) // Updated to NumberFormatter()
-                    .keyboardType(.numberPad)
-                    .padding(5)
-                    .border(Color.black, width: 1)
-                    .frame(width: 40)
-                TextField("", value: $kDays, formatter: NumberFormatter()) // Updated to NumberFormatter()
-                    .keyboardType(.numberPad)
-                    .padding(5)
-                    .border(Color.black, width: 1)
-                    .frame(width: 40)
-                Spacer()
+                HStack {
+                    HStack {
+                        Spacer()
+                        Text("Entitled Days")
+                    }
+                    .frame(width: geometry.size.width / 2, height: 40)
+                    HStack {
+                        TextField("", value: $entitledDays, formatter: Formatter.decimal)
+                            .keyboardType(.decimalPad)
+                            .padding(5)
+                            .border(Color.black, width: 1)
+                            .frame(width: 50)
+                        Spacer()
+                    }
+                }
+                HStack {
+                    HStack {
+                        Spacer()
+                        Text("K Days")
+                    }
+                    .frame(width: geometry.size.width / 2, height: 40)
+                    HStack {
+                        TextField("", value: $kDays, formatter: Formatter.decimal)
+                            .keyboardType(.decimalPad)
+                            .padding(5)
+                            .border(Color.black, width: 1)
+                            .frame(width: 50)
+                        Spacer()
+                    }
+                }
             }
         }
         .padding()
@@ -42,13 +55,15 @@ struct EditStartingNumDaysView: View {
     EditStartingNumDaysView(entitledDays: Binding(get: {
         26
     }, set: { _ in }),
-                           kDays: Binding(get: { 5 }, set: { _ in }))
+                            kDays: Binding(get: { 5 }, set: { _ in }))
 }
 
 extension Formatter {
-    static var integer: NumberFormatter {
+    static var decimal: NumberFormatter {
         let formatter = NumberFormatter()
-        formatter.zeroSymbol = ""
+        formatter.maximumFractionDigits = 1
+        formatter.roundingMode = .halfUp
+        formatter.numberStyle = .decimal
         return formatter
     }
 }

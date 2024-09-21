@@ -11,7 +11,8 @@ import SwiftUI
 struct YearView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var dateToTake: Date
-    @State private var numDaysToTake: Float = 26
+    @State private var entitledDays: Float = 26
+    @State private var kDays: Float = 5
     @State private var viewModel: YearViewModel
     @Binding private var year: Int
     @Binding private var currentDate: Date
@@ -43,6 +44,10 @@ struct YearView: View {
         return daysOff.reduce(0.0, {
             return $0 + ((year == currentYearComponents.year) && ($1.date > currentDate) && ($1.date < endOfCurrentYear) ? $1.type.dayLength : 0)
         })
+    }
+
+    private var numDaysToTake: Float {
+        entitledDays + kDays
     }
 
     private var daysLeft: Float {
@@ -102,7 +107,14 @@ struct YearView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Starting Total: \(numDaysToTake, format: YearViewModel.oneDPFormat) \(dayStr(for: numDaysToTake))")
+            HStack {
+                Text("Starting Total: \(numDaysToTake, format: YearViewModel.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(entitledDays, format: YearViewModel.oneDPFormat) + \(kDays, format: YearViewModel.oneDPFormat))")
+                NavigationLink {
+                    EditStartingNumDaysView(entitledDays:  $entitledDays, kDays: $kDays)
+                } label: {
+                    Image(systemName: "pencil")
+                }
+            }
             VStack(alignment: .leading) {
                 Text("Days Taken So Far: \(daysTaken, format: YearViewModel.oneDPFormat) \(dayStr(for: daysTaken))")
                 Text("Days Left: \(daysLeft, format: YearViewModel.oneDPFormat) \(dayStr(for: daysLeft))")
