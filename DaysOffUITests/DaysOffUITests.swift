@@ -22,7 +22,7 @@ final class DaysOffUITests: XCTestCase {
     }
 
     @MainActor
-    func test_appInitialView() throws {
+    func test_appInitialView() {
         let app = resetApp()
 
         let navigationTitle = app.navigationBars["Days Off"].staticTexts["Days Off"]
@@ -36,7 +36,7 @@ final class DaysOffUITests: XCTestCase {
     }
 
     @MainActor
-    func test_appTakeDayAndThenHalfDay_andIsRemembered() throws {
+    func test_appTakeDayAndThenHalfDay_andIsRemembered() {
         let app = resetApp()
 
         XCTAssert(app.staticTexts["Days Left: 31 days"].exists)
@@ -76,7 +76,7 @@ final class DaysOffUITests: XCTestCase {
     }
 
     @MainActor
-    func test_addingIntoDifferentSections() throws {
+    func test_addingIntoDifferentSections() {
         let app = resetApp()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
@@ -136,7 +136,7 @@ final class DaysOffUITests: XCTestCase {
     }
 
     @MainActor
-    func test_changingYears() throws {
+    func test_changingYears() {
         let app = resetApp(seed: true)
 
         let startingYearText = app.staticTexts["2024"]
@@ -151,6 +151,74 @@ final class DaysOffUITests: XCTestCase {
         XCTAssert(nextYearText.exists)
         XCTAssertFalse(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
         XCTAssertTrue(daysTakenList.staticTexts["Wednesday 1 January 2025 - 1 day"].exists)
+    }
+
+    @MainActor
+    func test_kDayCarryOver() {
+
+        // Given app is started in 2024
+        let app = resetApp()
+        XCTAssert(app.staticTexts["2024"].exists)
+
+        // Then
+        XCTAssert(app.staticTexts["Starting Total: 31 days (26 + 5)"].exists)
+
+        // When I set K days to 2.5
+        app.buttons["Edit Starting Number Of Days"].tap()
+        let textField = app.textFields["K Days"]
+        textField.tap()
+        textField.typeText(XCUIKeyboardKey.delete.rawValue)
+        textField.typeText(XCUIKeyboardKey.delete.rawValue)
+        textField.typeText("2.5")
+        app.buttons["Days Off"].tap()
+
+        // Then
+        XCTAssert(app.staticTexts["Starting Total: 28.5 days (26 + 2.5)"].exists)
+
+        // When I restart app without resetting
+        app.launchArguments.removeAll()
+        app.launch()
+
+        // Then it remembers days
+        XCTAssert(app.staticTexts["Starting Total: 28.5 days (26 + 2.5)"].exists)
+
+        // When I go to 2025
+        app.buttons["Next Year"].tap()
+        XCTAssert(app.staticTexts["2025"].exists)
+
+        // Then days go back to default
+        XCTAssert(app.staticTexts["Starting Total: 31 days (26 + 5)"].exists)
+
+        // When entitled days is changed to 0
+        app.buttons["Edit Starting Number Of Days"].tap()
+        let entitledTextField = app.textFields["Entitled Days"]
+        entitledTextField.tap()
+        entitledTextField.typeText(XCUIKeyboardKey.delete.rawValue)
+        entitledTextField.typeText(XCUIKeyboardKey.delete.rawValue)
+        entitledTextField.typeText("0")
+        app.buttons["Days Off"].tap()
+
+        // Then
+        XCTAssert(app.staticTexts["Starting Total: 5 days (0 + 5)"].exists)
+
+        // When a day is added
+        app.datePickers.firstMatch.buttons["Date Picker"].tap()
+        app.changeMonth(forwards: true, times: 4)
+        app.buttons["Thursday 2 January"].tap()
+        app.buttons["PopoverDismissRegion"].tap()
+        app.buttons["Take 1 Day"].tap()
+
+        // Then
+        let daysTakenList = app.collectionViews.firstMatch
+        XCTAssertTrue(daysTakenList.staticTexts["Thursday 2 January 2025 - 1 day"].exists)
+        XCTAssert(app.staticTexts["Days Left: 4 days"].exists)
+
+        // When moving to 2026
+        app.buttons["Next Year"].tap()
+
+        // Then 4 K days are carried over, not 5
+        XCTAssert(app.staticTexts["2026"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 30 days (26 + 4)"].exists)
     }
 }
 

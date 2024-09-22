@@ -23,6 +23,14 @@ struct YearView: View {
     @Query private var lastMonthDays: [DayOffModel]
     @Query private var previousDays: [DayOffModel]
 
+    private func daysTakenForYear(_ year: Int) -> Float {
+        guard let startOfYear = Calendar.current.date(from: DateComponents(year: year)),
+              let endOfYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
+            fatalError("Expects to derives start of year")
+        }
+        return daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= endOfYear) ? $1.type.dayLength : 0) })
+    }
+
     private var daysTaken: Float {
         guard let startOfYear = Calendar.current.date(from: DateComponents(year: year)),
               let endOfYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
@@ -30,7 +38,7 @@ struct YearView: View {
         }
         let currentYearComponents = Calendar.current.dateComponents([.year], from: currentDate)
         let maxDate = (currentYearComponents.year == year) ? currentDate : endOfYear
-        return daysOff.reduce(0.0, { $0 + ((year <= currentYearComponents.year!) && ($1.date >= startOfYear) && ($1.date <= maxDate) ? $1.type.dayLength : 0) })
+        return daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= maxDate) ? $1.type.dayLength : 0) })
     }
 
     private var daysReserved: Float {
@@ -110,10 +118,11 @@ struct YearView: View {
             HStack {
                 Text("Starting Total: \(numDaysToTake, format: YearViewModel.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(entitledDays, format: YearViewModel.oneDPFormat) + \(kDays, format: YearViewModel.oneDPFormat))")
                 NavigationLink {
-                    EditStartingNumDaysView(entitledDays:  $entitledDays, kDays: $kDays)
+                    EditStartingNumDaysView(entitledDays: $entitledDays, kDays: $kDays)
                 } label: {
                     Image(systemName: "pencil")
                 }
+                .accessibilityIdentifier("Edit Starting Number Of Days")
             }
             VStack(alignment: .leading) {
                 Text("Days Taken So Far: \(daysTaken, format: YearViewModel.oneDPFormat) \(dayStr(for: daysTaken))")
@@ -146,6 +155,37 @@ struct YearView: View {
             DaysOffSection(heading: "Last Month", colour: .black, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }))
             DaysOffSection(heading: "Previous Months", colour: .gray, daysOff: Binding(get: previousDays.reversed, set: { _ in }))
         }
+        .onAppear {
+            updateStartingDays()
+        }
+        .onChange(of: year) {
+            updateStartingDays()
+        }
+        .onChange(of: entitledDays) {
+            saveYearStartingDays()
+        }
+        .onChange(of: kDays) {
+            saveYearStartingDays()
+        }
+    }
+
+    private func updateStartingDays() {
+        let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == year }
+        let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
+        if let yearStartingDaysEntries = try? modelContext.fetch(fetchDescriptor),
+           let foundYear = yearStartingDaysEntries.first {
+            self.entitledDays = foundYear.entitledDays
+            self.kDays = foundYear.kDays
+        } else {
+            self.entitledDays = 26
+            self.kDays = 5 - daysTakenForYear(year - 1)
+            saveYearStartingDays()
+        }
+    }
+
+    private func saveYearStartingDays() {
+        let newEntry = YearStartingDaysModel(year: self.year, entitledDays: entitledDays, kDays: kDays)
+        modelContext.insert(newEntry)
     }
 
     private func takeDay(_ date: Date, type: DayOffType) {

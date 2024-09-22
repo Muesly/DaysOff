@@ -20,6 +20,7 @@ struct DaysOffApp: App {
 
         if Self.isResettingApplication {
             try? sharedModelContainer.mainContext.delete(model: DayOffModel.self)
+            try? sharedModelContainer.mainContext.delete(model: YearStartingDaysModel.self)
         }
 
         if Self.seedData {
@@ -77,7 +78,7 @@ struct DaysOffApp: App {
 
     private static func createSharedModelContainer() -> ModelContainer {
         do {
-            let schema = Schema([DayOffModel.self])
+            let schema = Schema([DayOffModel.self, YearStartingDaysModel.self])
             return try ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema)])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")

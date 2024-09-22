@@ -21,7 +21,7 @@ struct EditStartingNumDaysView: View {
                     }
                     .frame(width: geometry.size.width / 2, height: 40)
                     HStack {
-                        TextField("", value: $entitledDays, formatter: Formatter.decimal)
+                        TextField("Entitled Days", value: $entitledDays, formatter: Formatter.decimal)
                             .keyboardType(.decimalPad)
                             .padding(5)
                             .border(Color.black, width: 1)
@@ -36,7 +36,7 @@ struct EditStartingNumDaysView: View {
                     }
                     .frame(width: geometry.size.width / 2, height: 40)
                     HStack {
-                        TextField("", value: $kDays, formatter: Formatter.decimal)
+                        TextField("K Days", value: $kDays, formatter: Formatter.decimal)
                             .keyboardType(.decimalPad)
                             .padding(5)
                             .border(Color.black, width: 1)
