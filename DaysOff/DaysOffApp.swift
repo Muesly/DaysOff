@@ -1,35 +1,46 @@
 //
-//  DaysOffAppDelegate.swift
+//  DaysOffApp.swift
 //  DaysOff
 //
-//  Created by Tony Short on 14/09/2024.
+//  Created by Tony Short on 22/09/2024.
 //
 
-import SwiftUI
+import Foundation
 import SwiftData
-import UIKit
+import SwiftUI
 
-class DaysOffAppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        return true
-    }
-
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-        let sceneConfig = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
-        sceneConfig.delegateClass = DaysOffSceneDelegate.self
-        return sceneConfig
-    }
-}
-
-class DaysOffSceneDelegate: UIResponder, UIWindowSceneDelegate {
-    var window: UIWindow?
+@main
+struct DaysOffApp: App {
     private let sharedModelContainer: ModelContainer
     private let currentDate: Date
 
-    override init() {
+    init() {
         self.sharedModelContainer = Self.createSharedModelContainer()
         self.currentDate = Self.overriddenDate ?? Date()
-        super.init()
+
+        if Self.isResettingApplication {
+            try? sharedModelContainer.mainContext.delete(model: DayOffModel.self)
+        }
+
+        if Self.seedData {
+            seedData()
+        }
+
+        if Self.disableAnimations {
+            UIView.setAnimationsEnabled(false)
+        }
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            if isProduction {
+                DaysOffView(currentDate: currentDate).modelContainer(sharedModelContainer)
+            }
+        }
+    }
+
+    private var isProduction: Bool {
+        NSClassFromString("XCTestCase") == nil
     }
 
     private static var isResettingApplication: Bool {
@@ -71,27 +82,5 @@ class DaysOffSceneDelegate: UIResponder, UIWindowSceneDelegate {
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }
-
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        let window = UIWindow(windowScene: windowScene)
-        self.window = window
-
-        if Self.isResettingApplication {
-            try? sharedModelContainer.mainContext.delete(model: DayOffModel.self)
-        }
-
-        if Self.seedData {
-            seedData()
-        }
-
-        if Self.disableAnimations {
-            UIView.setAnimationsEnabled(false)
-        }
-
-        let contentView = DaysOffView(currentDate: currentDate).modelContainer(sharedModelContainer)
-        window.rootViewController = UIHostingController(rootView: contentView)
-        window.makeKeyAndVisible()
     }
 }
