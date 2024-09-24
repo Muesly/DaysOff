@@ -29,6 +29,10 @@ struct DaysOffView: View {
                     .padding(.top, 20)
                 YearView(currentDate: $currentDate, year: $year, viewModel: YearViewModel())
             }
+            .background(
+                LinearGradient(gradient: Gradient(colors: [Color(red: 0.5, green: 0.8, blue: 1),
+                                                           Color(red: 1, green: 1, blue: 0.5)]), startPoint: .top, endPoint: .bottom)
+                )
             .navigationTitle("Days Off")
         }
     }

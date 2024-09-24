@@ -155,6 +155,7 @@ struct YearView: View {
             DaysOffSection(heading: "Last Month", colour: .black, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }))
             DaysOffSection(heading: "Previous Months", colour: .gray, daysOff: Binding(get: previousDays.reversed, set: { _ in }))
         }
+        .scrollContentBackground(.hidden)
         .onAppear {
             updateStartingDays()
         }
