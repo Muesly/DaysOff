@@ -150,10 +150,10 @@ struct YearView: View {
         }
         .padding()
         List {
-            DaysOffSection(heading: "Future Months", colour: .gray, daysOff: Binding(get: futureDays.reversed, set: { _ in }))
-            DaysOffSection(heading: "This Month", colour: .black, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }))
-            DaysOffSection(heading: "Last Month", colour: .black, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }))
-            DaysOffSection(heading: "Previous Months", colour: .gray, daysOff: Binding(get: previousDays.reversed, set: { _ in }))
+            DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }))
+            DaysOffSection(heading: "This Month", colour: .foregroundPrimary, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }))
+            DaysOffSection(heading: "Last Month", colour: .foregroundPrimary, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }))
+            DaysOffSection(heading: "Previous Months", colour: .foregroundSecondary, daysOff: Binding(get: previousDays.reversed, set: { _ in }))
         }
         .scrollContentBackground(.hidden)
         .onAppear {

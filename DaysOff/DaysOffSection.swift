@@ -25,6 +25,7 @@ struct DaysOffSection: View {
         } header: {
             Text(heading)
         }
+        .listRowBackground(Color.backgroundPrimary)
     }
 
     private func deleteDayOff(offsets: IndexSet) {
