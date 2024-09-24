@@ -116,7 +116,7 @@ struct YearView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text("Starting Total: \(numDaysToTake, format: YearViewModel.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(entitledDays, format: YearViewModel.oneDPFormat) + \(kDays, format: YearViewModel.oneDPFormat))")
+                Text("Starting Total: \(numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(entitledDays, format: Formatters.oneDPFormat) + \(kDays, format: Formatters.oneDPFormat))")
                 NavigationLink {
                     EditStartingNumDaysView(entitledDays: $entitledDays, kDays: $kDays)
                 } label: {
@@ -125,12 +125,12 @@ struct YearView: View {
                 .accessibilityIdentifier("Edit Starting Number Of Days")
             }
             VStack(alignment: .leading) {
-                Text("Days Taken So Far: \(daysTaken, format: YearViewModel.oneDPFormat) \(dayStr(for: daysTaken))")
-                Text("Days Left: \(daysLeft, format: YearViewModel.oneDPFormat) \(dayStr(for: daysLeft))")
+                Text("Days Taken So Far: \(daysTaken, format: Formatters.oneDPFormat) \(dayStr(for: daysTaken))")
+                Text("Days Left: \(daysLeft, format: Formatters.oneDPFormat) \(dayStr(for: daysLeft))")
                     .bold()
                 VStack(alignment: .leading) {
-                    Text("Days Reserved: \(daysReserved, format: YearViewModel.oneDPFormat) \(dayStr(for: daysReserved))")
-                    Text("Days To Plan: \(daysToPlan, format: YearViewModel.oneDPFormat) \(dayStr(for: daysLeft))")
+                    Text("Days Reserved: \(daysReserved, format: Formatters.oneDPFormat) \(dayStr(for: daysReserved))")
+                    Text("Days To Plan: \(daysToPlan, format: Formatters.oneDPFormat) \(dayStr(for: daysLeft))")
                 }.padding(.leading, 20)
             }.padding(.leading, 20)
         }
