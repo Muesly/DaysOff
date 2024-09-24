@@ -17,7 +17,6 @@ struct YearView: View {
     @Binding private var year: Int
     @Binding private var currentDate: Date
 
-    @Query private var daysOff: [DayOffModel]
     @Query private var futureDays: [DayOffModel]
     @Query private var thisMonthDays: [DayOffModel]
     @Query private var lastMonthDays: [DayOffModel]
@@ -28,7 +27,7 @@ struct YearView: View {
               let endOfYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
             fatalError("Expects to derives start of year")
         }
-        return daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= endOfYear) ? $1.type.dayLength : 0) })
+        return viewModel.daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= endOfYear) ? $1.type.dayLength : 0) })
     }
 
     private var daysTaken: Float {
@@ -38,7 +37,7 @@ struct YearView: View {
         }
         let currentYearComponents = Calendar.current.dateComponents([.year], from: currentDate)
         let maxDate = (currentYearComponents.year == year) ? currentDate : endOfYear
-        return daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= maxDate) ? $1.type.dayLength : 0) })
+        return viewModel.daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= maxDate) ? $1.type.dayLength : 0) })
     }
 
     private var daysReserved: Float {
@@ -49,7 +48,7 @@ struct YearView: View {
         }
         let currentYearComponents = Calendar.current.dateComponents([.year], from: currentDate)
 
-        return daysOff.reduce(0.0, {
+        return viewModel.daysOff.reduce(0.0, {
             return $0 + ((year == currentYearComponents.year) && ($1.date > currentDate) && ($1.date < endOfCurrentYear) ? $1.type.dayLength : 0)
         })
     }
@@ -106,7 +105,6 @@ struct YearView: View {
                                                      $0.date >= startOfFocusedYear &&
                                                      $0.date < endOfFocusedYear }
 
-        _daysOff = Query()
         _futureDays = Query(filter: futureDays, sort: \DayOffModel.date)
         _thisMonthDays = Query(filter: thisMonthDays, sort: \DayOffModel.date)
         _lastMonthDays = Query(filter: lastMonthDays, sort: \DayOffModel.date)
@@ -142,18 +140,22 @@ struct YearView: View {
                 displayedComponents: [.date]
             )
             Button("Take 1 Day") {
-                takeDay(dateToTake, type: .fullDay)
+                withAnimation {
+                    viewModel.takeDay(dateToTake, type: .fullDay)
+                }
             }
             Button("Take 1/2 Day") {
-                takeDay(dateToTake, type: .halfDay)
+                withAnimation {
+                    viewModel.takeDay(dateToTake, type: .halfDay)
+                }
             }
         }
         .padding()
         List {
-            DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }))
-            DaysOffSection(heading: "This Month", colour: .foregroundPrimary, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }))
-            DaysOffSection(heading: "Last Month", colour: .foregroundPrimary, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }))
-            DaysOffSection(heading: "Previous Months", colour: .foregroundSecondary, daysOff: Binding(get: previousDays.reversed, set: { _ in }))
+            DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }), onDelete: onDelete)
+            DaysOffSection(heading: "This Month", colour: .foregroundPrimary, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }), onDelete: onDelete)
+            DaysOffSection(heading: "Last Month", colour: .foregroundPrimary, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }), onDelete: onDelete)
+            DaysOffSection(heading: "Previous Months", colour: .foregroundSecondary, daysOff: Binding(get: previousDays.reversed, set: { _ in }), onDelete: onDelete)
         }
         .scrollContentBackground(.hidden)
         .onAppear {
@@ -168,6 +170,10 @@ struct YearView: View {
         .onChange(of: kDays) {
             saveYearStartingDays()
         }
+    }
+
+    private func onDelete(_ dayOffModel: DayOffModel) {
+        viewModel.delete(dayOffModel)
     }
 
     private func updateStartingDays() {
@@ -188,15 +194,8 @@ struct YearView: View {
         let newEntry = YearStartingDaysModel(year: self.year, entitledDays: entitledDays, kDays: kDays)
         modelContext.insert(newEntry)
     }
-
-    private func takeDay(_ date: Date, type: DayOffType) {
-        withAnimation {
-            let newItem = DayOffModel(date: date, type: type)
-            modelContext.insert(newItem)
-        }
-    }
 }
 
 #Preview {
-    YearView(currentDate: .constant(Date()), year: .constant(2024), viewModel: YearViewModel())
+    YearView(currentDate: .constant(Date()), year: .constant(2024), viewModel: YearViewModel(modelContext: .inMemory))
 }

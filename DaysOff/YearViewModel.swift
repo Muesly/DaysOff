@@ -6,15 +6,37 @@
 //
 
 import Foundation
+import SwiftData
 
+@Observable
 final class YearViewModel {
-    static var dateFormatter: DateFormatter {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEEE d MMMM YYYY"
-        return dateFormatter
+    var modelContext: ModelContext
+    var daysOff = [DayOffModel]()
+
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+        fetchData()
     }
 
-    static var oneDPFormat: FloatingPointFormatStyle<Float> {
-        .number.precision(.fractionLength(0...1))
+    func fetchData() {
+        do {
+            let descriptor = FetchDescriptor<DayOffModel>()
+            daysOff = try modelContext.fetch(descriptor)
+        } catch {
+            print("Fetch failed")
+        }
+    }
+
+    func takeDay(_ date: Date, type: DayOffType) {
+        let newItem = DayOffModel(date: date, type: type)
+        modelContext.insert(newItem)
+        try! modelContext.save()
+        fetchData()
+    }
+
+    func delete(_ dayOffModel: DayOffModel) {
+        modelContext.delete(dayOffModel)
+        try! modelContext.save()
+        fetchData()
     }
 }

@@ -14,6 +14,7 @@ struct DaysOffSection: View {
     let heading: String
     let colour: Color
     @Binding var daysOff: [DayOffModel]
+    let onDelete: ((DayOffModel) -> Void)
 
     var body: some View {
         Section {
@@ -29,9 +30,9 @@ struct DaysOffSection: View {
     }
 
     private func deleteDayOff(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(daysOff[index])
+        if let offset = offsets.first {
+            withAnimation {
+                onDelete(daysOff[offset])
             }
         }
     }
@@ -39,6 +40,6 @@ struct DaysOffSection: View {
 
 #Preview {
     List {
-        DaysOffSection(heading: "This Month", colour: .black, daysOff: Binding(get: { [DayOffModel(date: Date(), type: .halfDay)] }, set: { _ in }))
+        DaysOffSection(heading: "This Month", colour: .black, daysOff: Binding(get: { [DayOffModel(date: Date(), type: .halfDay)] }, set: { _ in }), onDelete: { _ in })
     }
 }

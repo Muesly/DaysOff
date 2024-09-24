@@ -85,3 +85,9 @@ struct DaysOffApp: App {
         }
     }
 }
+
+extension ModelContext {
+    static var inMemory: ModelContext {
+        ModelContext(try! ModelContainer(for: DayOffModel.self, YearStartingDaysModel.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    }
+}
