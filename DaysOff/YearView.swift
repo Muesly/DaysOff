@@ -16,7 +16,7 @@ struct YearView: View {
     @State private var viewModel: YearViewModel
     @Binding private var year: Int
     @Binding private var currentDate: Date
-
+    @State private var isEditStartingNumDaysPresented = false
     @Query private var futureDays: [DayOffModel]
     @Query private var thisMonthDays: [DayOffModel]
     @Query private var lastMonthDays: [DayOffModel]
@@ -85,8 +85,8 @@ struct YearView: View {
         VStack(alignment: .leading) {
             HStack {
                 Text("Starting Total: \(numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(entitledDays, format: Formatters.oneDPFormat) + \(kDays, format: Formatters.oneDPFormat))")
-                NavigationLink {
-                    EditStartingNumDaysView(entitledDays: $entitledDays, kDays: $kDays)
+                Button {
+                    isEditStartingNumDaysPresented = true
                 } label: {
                     Image(systemName: "pencil")
                 }
@@ -149,11 +149,15 @@ struct YearView: View {
         .onChange(of: kDays) {
             saveYearStartingDays()
         }
+        .sheet(isPresented: $isEditStartingNumDaysPresented) {
+            EditStartingNumDaysView(entitledDays: $entitledDays, kDays: $kDays)
+        }
     }
 
     private func onDelete(_ dayOffModel: DayOffModel) {
         do {
             try viewModel.delete(dayOffModel)
+            try modelContext.save()
         } catch {
             print("Failed to delete day: \(error)")
         }
@@ -162,6 +166,7 @@ struct YearView: View {
     private var daysTaken: Float {
         viewModel.daysTaken(year: year, currentDate: currentDate)
     }
+
     private func updateStartingDays() {
         let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == year }
         let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
@@ -177,8 +182,13 @@ struct YearView: View {
     }
 
     private func saveYearStartingDays() {
-        let newEntry = YearStartingDaysModel(year: self.year, entitledDays: entitledDays, kDays: kDays)
-        modelContext.insert(newEntry)
+        do {
+            let newEntry = YearStartingDaysModel(year: self.year, entitledDays: entitledDays, kDays: kDays)
+            modelContext.insert(newEntry)
+            try modelContext.save()
+        } catch {
+            print("Failed to save year's starting days")
+        }
     }
 }
 

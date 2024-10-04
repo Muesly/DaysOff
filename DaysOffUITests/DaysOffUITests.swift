@@ -8,14 +8,17 @@
 import XCTest
 
 final class DaysOffUITests: XCTestCase {
-    private func resetApp(currentDateStr: String = "16 Sep 2024",
-                          seed: Bool = false) -> XCUIApplication {
+    private func setupApp(currentDateStr: String = "16 Sep 2024",
+                          seed: Bool = false,
+                          reset: Bool = true) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments.append(UITestingKeys.noAnimationsKey.rawValue)
-        app.launchArguments.append(UITestingKeys.resetKey.rawValue)
         app.launchEnvironment[UITestingKeys.dateKey.rawValue] = currentDateStr
         if seed {
             app.launchArguments.append(UITestingKeys.seededDataKey.rawValue)
+        }
+        if reset {
+            app.launchArguments.append(UITestingKeys.resetKey.rawValue)
         }
         app.launch()
         return app
@@ -23,7 +26,7 @@ final class DaysOffUITests: XCTestCase {
 
     @MainActor
     func test_appInitialView() {
-        let app = resetApp()
+        let app = setupApp()
 
         let navigationTitle = app.navigationBars["Days Off"].staticTexts["Days Off"]
         XCTAssert(navigationTitle.exists)
@@ -37,7 +40,7 @@ final class DaysOffUITests: XCTestCase {
 
     @MainActor
     func test_appTakeDayAndThenHalfDay_andIsRemembered() {
-        let app = resetApp()
+        var app = setupApp()
 
         XCTAssert(app.staticTexts["Days Left: 31 days"].exists)
 
@@ -67,9 +70,7 @@ final class DaysOffUITests: XCTestCase {
         app.buttons["Delete"].tap()
         XCTAssert(app.staticTexts["Days Reserved: 0 days"].exists)
 
-        // Restart app without resetting
-        app.launchArguments.removeAll()
-        app.launch()
+        app = setupApp(reset: false)
 
         // Check it remembers days
         XCTAssert(app.staticTexts["Days Left: 30 days"].exists)
@@ -77,7 +78,7 @@ final class DaysOffUITests: XCTestCase {
 
     @MainActor
     func test_addingIntoDifferentSections() {
-        let app = resetApp()
+        let app = setupApp()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
         sleep(1)
@@ -137,7 +138,7 @@ final class DaysOffUITests: XCTestCase {
 
     @MainActor
     func test_changingYears() {
-        let app = resetApp(seed: true)
+        let app = setupApp(seed: true)
 
         let startingYearText = app.staticTexts["2024"]
         XCTAssert(startingYearText.exists)
@@ -157,7 +158,7 @@ final class DaysOffUITests: XCTestCase {
     func test_kDayCarryOver() {
 
         // Given app is started in 2024
-        let app = resetApp()
+        var app = setupApp()
         XCTAssert(app.staticTexts["2024"].exists)
 
         // Then
@@ -170,14 +171,13 @@ final class DaysOffUITests: XCTestCase {
         textField.typeText(XCUIKeyboardKey.delete.rawValue)
         textField.typeText(XCUIKeyboardKey.delete.rawValue)
         textField.typeText("2.5")
-        app.buttons["Days Off"].tap()
+        app.buttons["Save"].tap()
 
         // Then
         XCTAssert(app.staticTexts["Starting Total: 28.5 days (26 + 2.5)"].exists)
 
         // When I restart app without resetting
-        app.launchArguments.removeAll()
-        app.launch()
+        app = setupApp(reset: false)
 
         // Then it remembers days
         XCTAssert(app.staticTexts["Starting Total: 28.5 days (26 + 2.5)"].exists)
@@ -196,7 +196,7 @@ final class DaysOffUITests: XCTestCase {
         entitledTextField.typeText(XCUIKeyboardKey.delete.rawValue)
         entitledTextField.typeText(XCUIKeyboardKey.delete.rawValue)
         entitledTextField.typeText("0")
-        app.buttons["Days Off"].tap()
+        app.buttons["Save"].tap()
 
         // Then
         XCTAssert(app.staticTexts["Starting Total: 5 days (0 + 5)"].exists)

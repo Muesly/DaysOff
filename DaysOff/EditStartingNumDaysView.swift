@@ -8,46 +8,69 @@
 import SwiftUI
 
 struct EditStartingNumDaysView: View {
+    @Environment(\.dismiss) var dismiss
     @Binding var entitledDays: Float
     @Binding var kDays: Float
+    @State var editedKDays: Float
+
+    init(entitledDays: Binding<Float>, kDays: Binding<Float>) {
+        self._entitledDays = entitledDays
+        self._kDays = kDays
+        self.editedKDays = kDays.wrappedValue
+    }
 
     var body: some View {
-        GeometryReader { geometry in
-            VStack(alignment: .leading) {
-                HStack {
+        NavigationView {
+            GeometryReader { geometry in
+                VStack(alignment: .leading) {
                     HStack {
-                        Spacer()
-                        Text("Entitled Days")
+                        HStack {
+                            Spacer()
+                            Text("Entitled Days")
+                        }
+                        .frame(width: geometry.size.width / 2, height: 40)
+                        HStack {
+                            TextField("Entitled Days", value: $entitledDays, formatter: Formatter.decimal)
+                                .keyboardType(.decimalPad)
+                                .padding(5)
+                                .border(Color.black, width: 1)
+                                .frame(width: 50)
+                            Spacer()
+                        }
                     }
-                    .frame(width: geometry.size.width / 2, height: 40)
                     HStack {
-                        TextField("Entitled Days", value: $entitledDays, formatter: Formatter.decimal)
-                            .keyboardType(.decimalPad)
-                            .padding(5)
-                            .border(Color.black, width: 1)
-                            .frame(width: 50)
-                        Spacer()
-                    }
-                }
-                HStack {
-                    HStack {
-                        Spacer()
-                        Text("K Days")
-                    }
-                    .frame(width: geometry.size.width / 2, height: 40)
-                    HStack {
-                        TextField("K Days", value: $kDays, formatter: Formatter.decimal)
-                            .keyboardType(.decimalPad)
-                            .padding(5)
-                            .border(Color.black, width: 1)
-                            .frame(width: 50)
-                        Spacer()
+                        HStack {
+                            Spacer()
+                            Text("K Days")
+                        }
+                        .frame(width: geometry.size.width / 2, height: 40)
+                        HStack {
+                            TextField("K Days", value: $editedKDays, formatter: Formatter.decimal)
+                                .keyboardType(.decimalPad)
+                                .padding(5)
+                                .border(Color.black, width: 1)
+                                .frame(width: 50)
+                            Spacer()
+                        }
                     }
                 }
             }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        kDays = editedKDays
+                        dismiss()
+                    }
+                }
+            }
+            .padding()
+            .navigationTitle("Edit Starting Days")
         }
-        .padding()
-        .navigationTitle("Edit Starting Days")
     }
 }
 
