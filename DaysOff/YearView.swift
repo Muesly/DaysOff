@@ -13,34 +13,22 @@ struct YearView: View {
     @State private var dateToTake: Date
     @State private var viewModel: YearViewModel
     @Binding private var year: Int
-    @Binding private var currentDate: Date
     @State private var isEditStartingNumDaysPresented = false
     @Query private var futureDays: [DayOffModel]
     @Query private var thisMonthDays: [DayOffModel]
     @Query private var lastMonthDays: [DayOffModel]
     @Query private var previousDays: [DayOffModel]
 
-    private var numDaysToTake: Float {
-        viewModel.entitledDays + viewModel.kDays
-    }
-
-    private var daysLeft: Float {
-        numDaysToTake - daysTaken
-    }
-
     private func dayStr(for number: Float) -> String {
         (number == 1) ? "day" : "days"
     }
 
-    private var daysToPlan: Float {
-        daysLeft - viewModel.daysReserved(year: year, currentDate: currentDate)
-    }
-
     init(currentDate: Binding<Date>, year: Binding<Int>, viewModel: YearViewModel) {
         _year = year
-        _currentDate = currentDate
         self.dateToTake = currentDate.wrappedValue
         self.viewModel = viewModel
+        self.viewModel.year = year.wrappedValue
+        self.viewModel.currentDate = currentDate.wrappedValue
 
         guard let startOfFocusedYear = Calendar.current.date(from: DateComponents(year: year.wrappedValue)),
               let endOfFocusedYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfFocusedYear) else {
@@ -79,10 +67,9 @@ struct YearView: View {
     }
     
     var body: some View {
-        let daysReserved = viewModel.daysReserved(year: year, currentDate: currentDate)
         VStack(alignment: .leading) {
             HStack {
-                Text("Starting Total: \(numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(viewModel.entitledDays, format: Formatters.oneDPFormat) + \(viewModel.kDays, format: Formatters.oneDPFormat))")
+                Text("Starting Total: \(viewModel.numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.numDaysToTake)) (\(viewModel.entitledDays, format: Formatters.oneDPFormat) + \(viewModel.kDays, format: Formatters.oneDPFormat))")
                 Button {
                     isEditStartingNumDaysPresented = true
                 } label: {
@@ -91,12 +78,12 @@ struct YearView: View {
                 .accessibilityIdentifier("Edit Starting Number Of Days")
             }
             VStack(alignment: .leading) {
-                Text("Days Taken So Far: \(daysTaken, format: Formatters.oneDPFormat) \(dayStr(for: daysTaken))")
-                Text("Days Left: \(daysLeft, format: Formatters.oneDPFormat) \(dayStr(for: daysLeft))")
+                Text("Days Taken So Far: \(viewModel.daysTaken, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysTaken(year: year, currentDate: viewModel.currentDate)))")
+                Text("Days Left: \(viewModel.daysLeft, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysLeft))")
                     .bold()
                 VStack(alignment: .leading) {
-                    Text("Days Reserved: \(daysReserved, format: Formatters.oneDPFormat) \(dayStr(for: daysReserved))")
-                    Text("Days To Plan: \(daysToPlan, format: Formatters.oneDPFormat) \(dayStr(for: daysLeft))")
+                    Text("Days Reserved: \(viewModel.daysReserved, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysReserved))")
+                    Text("Days To Plan: \(viewModel.daysToPlan, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysLeft))")
                 }.padding(.leading, 20)
             }.padding(.leading, 20)
         }
@@ -139,6 +126,7 @@ struct YearView: View {
             updateStartingDays()
         }
         .onChange(of: year) {
+            viewModel.year = year
             updateStartingDays()
         }
         .onChange(of: viewModel.entitledDays) {
@@ -161,10 +149,6 @@ struct YearView: View {
         }
     }
 
-    private var daysTaken: Float {
-        viewModel.daysTaken(year: year, currentDate: currentDate)
-    }
-
     private func updateStartingDays() {
         let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == year }
         let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
@@ -174,7 +158,7 @@ struct YearView: View {
             self.viewModel.kDays = foundYear.kDays
         } else {
             self.viewModel.entitledDays = 26
-            self.viewModel.kDays = 5 - viewModel.daysTaken(year: year - 1, currentDate: currentDate)
+            self.viewModel.kDays = 5 - viewModel.daysTaken(year: year - 1, currentDate: viewModel.currentDate)
             saveYearStartingDays()
         }
     }

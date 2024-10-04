@@ -14,6 +14,8 @@ final class YearViewModel {
     var daysOff = [DayOffModel]()
     var entitledDays: Float = 26
     var kDays: Float = 5
+    var year: Int = 0
+    var currentDate: Date = Date()
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -37,6 +39,22 @@ final class YearViewModel {
         try fetchData()
     }
 
+    var daysTaken: Float {
+        daysTaken(year: year, currentDate: currentDate)
+    }
+
+    var numDaysToTake: Float {
+        entitledDays + kDays
+    }
+
+    var daysLeft: Float {
+        numDaysToTake - daysTaken
+    }
+
+    var daysToPlan: Float {
+        daysLeft - daysReserved
+    }
+
     func daysTaken(year: Int, currentDate: Date) -> Float {
         guard let startOfYear = Calendar.current.date(from: DateComponents(year: year)),
               let endOfYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
@@ -47,7 +65,7 @@ final class YearViewModel {
         return daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= maxDate) ? $1.type.dayLength : 0) })
     }
 
-    func daysReserved(year: Int, currentDate: Date) -> Float {
+    var daysReserved: Float {
         let components = Calendar.current.dateComponents([.year], from: currentDate)
         guard let startOfCurrentYear = Calendar.current.date(from: components),
               let endOfCurrentYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfCurrentYear) else {
