@@ -11,7 +11,6 @@ import SwiftUI
 struct YearView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var dateToTake: Date
-    @State private var kDays: Float = 5
     @State private var viewModel: YearViewModel
     @Binding private var year: Int
     @Binding private var currentDate: Date
@@ -22,7 +21,7 @@ struct YearView: View {
     @Query private var previousDays: [DayOffModel]
 
     private var numDaysToTake: Float {
-        viewModel.entitledDays + kDays
+        viewModel.entitledDays + viewModel.kDays
     }
 
     private var daysLeft: Float {
@@ -83,7 +82,7 @@ struct YearView: View {
         let daysReserved = viewModel.daysReserved(year: year, currentDate: currentDate)
         VStack(alignment: .leading) {
             HStack {
-                Text("Starting Total: \(numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(viewModel.entitledDays, format: Formatters.oneDPFormat) + \(kDays, format: Formatters.oneDPFormat))")
+                Text("Starting Total: \(numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(viewModel.entitledDays, format: Formatters.oneDPFormat) + \(viewModel.kDays, format: Formatters.oneDPFormat))")
                 Button {
                     isEditStartingNumDaysPresented = true
                 } label: {
@@ -145,11 +144,11 @@ struct YearView: View {
         .onChange(of: viewModel.entitledDays) {
             saveYearStartingDays()
         }
-        .onChange(of: kDays) {
+        .onChange(of: viewModel.kDays) {
             saveYearStartingDays()
         }
         .sheet(isPresented: $isEditStartingNumDaysPresented) {
-            EditStartingNumDaysView(entitledDays: $viewModel.entitledDays, kDays: $kDays)
+            EditStartingNumDaysView(entitledDays: $viewModel.entitledDays, kDays: $viewModel.kDays)
         }
     }
 
@@ -172,17 +171,17 @@ struct YearView: View {
         if let yearStartingDaysEntries = try? modelContext.fetch(fetchDescriptor),
            let foundYear = yearStartingDaysEntries.first {
             self.viewModel.entitledDays = foundYear.entitledDays
-            self.kDays = foundYear.kDays
+            self.viewModel.kDays = foundYear.kDays
         } else {
             self.viewModel.entitledDays = 26
-            self.kDays = 5 - viewModel.daysTaken(year: year - 1, currentDate: currentDate)
+            self.viewModel.kDays = 5 - viewModel.daysTaken(year: year - 1, currentDate: currentDate)
             saveYearStartingDays()
         }
     }
 
     private func saveYearStartingDays() {
         do {
-            let newEntry = YearStartingDaysModel(year: self.year, entitledDays: viewModel.entitledDays, kDays: kDays)
+            let newEntry = YearStartingDaysModel(year: self.year, entitledDays: viewModel.entitledDays, kDays: viewModel.kDays)
             modelContext.insert(newEntry)
             try modelContext.save()
         } catch {

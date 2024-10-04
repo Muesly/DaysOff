@@ -13,6 +13,7 @@ final class YearViewModel {
     var modelContext: ModelContext
     var daysOff = [DayOffModel]()
     var entitledDays: Float = 26
+    var kDays: Float = 5
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
