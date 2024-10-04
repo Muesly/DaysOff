@@ -12,6 +12,7 @@ import SwiftData
 final class YearViewModel {
     var modelContext: ModelContext
     var daysOff = [DayOffModel]()
+    var entitledDays: Float = 26
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
