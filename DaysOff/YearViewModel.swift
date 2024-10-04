@@ -77,4 +77,29 @@ final class YearViewModel {
             return $0 + ((year == currentYearComponents.year) && ($1.date > currentDate) && ($1.date < endOfCurrentYear) ? $1.type.dayLength : 0)
         })
     }
+
+    func deleteDay(_ dayOffModel: DayOffModel) throws {
+        try delete(dayOffModel)
+        try modelContext.save()
+    }
+
+    func updateStartingDays() throws {
+        let newEntry = YearStartingDaysModel(year: year, entitledDays: entitledDays, kDays: kDays)
+        modelContext.insert(newEntry)
+        try modelContext.save()
+    }
+
+    func getOrUpdateStartingDays() throws {
+        let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == year }
+        let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
+        if let yearStartingDaysEntries = try? modelContext.fetch(fetchDescriptor),
+           let foundYear = yearStartingDaysEntries.first {
+            entitledDays = foundYear.entitledDays
+            kDays = foundYear.kDays
+        } else {
+            entitledDays = 26
+            kDays = 5 - daysTaken(year: year - 1, currentDate: currentDate)
+            try updateStartingDays()
+        }
+    }
 }

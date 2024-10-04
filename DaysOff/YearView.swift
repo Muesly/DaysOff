@@ -13,20 +13,20 @@ struct YearView: View {
     @State private var dateToTake: Date
     @State private var viewModel: YearViewModel
     @Binding private var year: Int
+    @State private var entitledDays: Float
+    @State private var kDays: Float
     @State private var isEditStartingNumDaysPresented = false
     @Query private var futureDays: [DayOffModel]
     @Query private var thisMonthDays: [DayOffModel]
     @Query private var lastMonthDays: [DayOffModel]
     @Query private var previousDays: [DayOffModel]
 
-    private func dayStr(for number: Float) -> String {
-        (number == 1) ? "day" : "days"
-    }
-
     init(currentDate: Binding<Date>, year: Binding<Int>, viewModel: YearViewModel) {
         _year = year
         self.dateToTake = currentDate.wrappedValue
         self.viewModel = viewModel
+        entitledDays = viewModel.entitledDays
+        kDays = viewModel.kDays
         self.viewModel.year = year.wrappedValue
         self.viewModel.currentDate = currentDate.wrappedValue
 
@@ -123,53 +123,42 @@ struct YearView: View {
         .scrollContentBackground(.hidden)
         .onAppear {
             try? viewModel.fetchData()
-            updateStartingDays()
+            try? viewModel.getOrUpdateStartingDays()
         }
         .onChange(of: year) {
             viewModel.year = year
-            updateStartingDays()
+            try? viewModel.getOrUpdateStartingDays()
         }
-        .onChange(of: viewModel.entitledDays) {
-            saveYearStartingDays()
+        .onChange(of: entitledDays) {
+            viewModel.entitledDays = entitledDays
+            try? viewModel.updateStartingDays()
         }
-        .onChange(of: viewModel.kDays) {
-            saveYearStartingDays()
+        .onChange(of: kDays) {
+            viewModel.kDays = kDays
+            try? viewModel.updateStartingDays()
         }
         .sheet(isPresented: $isEditStartingNumDaysPresented) {
-            EditStartingNumDaysView(entitledDays: $viewModel.entitledDays, kDays: $viewModel.kDays)
+            EditStartingNumDaysView(entitledDays: $entitledDays, kDays: $kDays)
         }
+    }
+
+    private func dayStr(for number: Float) -> String {
+        (number == 1) ? "day" : "days"
     }
 
     private func onDelete(_ dayOffModel: DayOffModel) {
         do {
-            try viewModel.delete(dayOffModel)
-            try modelContext.save()
+            try viewModel.deleteDay(dayOffModel)
         } catch {
             print("Failed to delete day: \(error)")
         }
     }
 
     private func updateStartingDays() {
-        let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == year }
-        let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
-        if let yearStartingDaysEntries = try? modelContext.fetch(fetchDescriptor),
-           let foundYear = yearStartingDaysEntries.first {
-            self.viewModel.entitledDays = foundYear.entitledDays
-            self.viewModel.kDays = foundYear.kDays
-        } else {
-            self.viewModel.entitledDays = 26
-            self.viewModel.kDays = 5 - viewModel.daysTaken(year: year - 1, currentDate: viewModel.currentDate)
-            saveYearStartingDays()
-        }
-    }
-
-    private func saveYearStartingDays() {
         do {
-            let newEntry = YearStartingDaysModel(year: self.year, entitledDays: viewModel.entitledDays, kDays: viewModel.kDays)
-            modelContext.insert(newEntry)
-            try modelContext.save()
+            try viewModel.updateStartingDays()
         } catch {
-            print("Failed to save year's starting days")
+            print("Failed to update year's atarting days: \(error)")
         }
     }
 }
