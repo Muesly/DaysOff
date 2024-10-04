@@ -22,37 +22,6 @@ struct YearView: View {
     @Query private var lastMonthDays: [DayOffModel]
     @Query private var previousDays: [DayOffModel]
 
-    private func daysTakenForYear(_ year: Int) -> Float {
-        guard let startOfYear = Calendar.current.date(from: DateComponents(year: year)),
-              let endOfYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
-            fatalError("Expects to derives start of year")
-        }
-        return viewModel.daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= endOfYear) ? $1.type.dayLength : 0) })
-    }
-
-    private var daysTaken: Float {
-        guard let startOfYear = Calendar.current.date(from: DateComponents(year: year)),
-              let endOfYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) else {
-            fatalError("Expects to derives start of year")
-        }
-        let currentYearComponents = Calendar.current.dateComponents([.year], from: currentDate)
-        let maxDate = (currentYearComponents.year == year) ? currentDate : endOfYear
-        return viewModel.daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= maxDate) ? $1.type.dayLength : 0) })
-    }
-
-    private var daysReserved: Float {
-        let components = Calendar.current.dateComponents([.year], from: currentDate)
-        guard let startOfCurrentYear = Calendar.current.date(from: components),
-              let endOfCurrentYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfCurrentYear) else {
-            fatalError("Expects to derives start of year")
-        }
-        let currentYearComponents = Calendar.current.dateComponents([.year], from: currentDate)
-
-        return viewModel.daysOff.reduce(0.0, {
-            return $0 + ((year == currentYearComponents.year) && ($1.date > currentDate) && ($1.date < endOfCurrentYear) ? $1.type.dayLength : 0)
-        })
-    }
-
     private var numDaysToTake: Float {
         entitledDays + kDays
     }
@@ -66,7 +35,7 @@ struct YearView: View {
     }
 
     private var daysToPlan: Float {
-        daysLeft - daysReserved
+        daysLeft - viewModel.daysReserved(year: year, currentDate: currentDate)
     }
 
     init(currentDate: Binding<Date>, year: Binding<Int>, viewModel: YearViewModel) {
@@ -112,6 +81,7 @@ struct YearView: View {
     }
     
     var body: some View {
+        let daysReserved = viewModel.daysReserved(year: year, currentDate: currentDate)
         VStack(alignment: .leading) {
             HStack {
                 Text("Starting Total: \(numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: numDaysToTake)) (\(entitledDays, format: Formatters.oneDPFormat) + \(kDays, format: Formatters.oneDPFormat))")
@@ -141,12 +111,20 @@ struct YearView: View {
             )
             Button("Take 1 Day") {
                 withAnimation {
-                    viewModel.takeDay(dateToTake, type: .fullDay)
+                    do {
+                        try viewModel.takeDay(dateToTake, type: .fullDay)
+                    } catch {
+                        print("Failed to take day: \(error)")
+                    }
                 }
             }
             Button("Take 1/2 Day") {
                 withAnimation {
-                    viewModel.takeDay(dateToTake, type: .halfDay)
+                    do {
+                        try viewModel.takeDay(dateToTake, type: .halfDay)
+                    } catch {
+                        print("Failed to take half day: \(error)")
+                    }
                 }
             }
         }
@@ -159,6 +137,7 @@ struct YearView: View {
         }
         .scrollContentBackground(.hidden)
         .onAppear {
+            try? viewModel.fetchData()
             updateStartingDays()
         }
         .onChange(of: year) {
@@ -173,9 +152,16 @@ struct YearView: View {
     }
 
     private func onDelete(_ dayOffModel: DayOffModel) {
-        viewModel.delete(dayOffModel)
+        do {
+            try viewModel.delete(dayOffModel)
+        } catch {
+            print("Failed to delete day: \(error)")
+        }
     }
 
+    private var daysTaken: Float {
+        viewModel.daysTaken(year: year, currentDate: currentDate)
+    }
     private func updateStartingDays() {
         let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == year }
         let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
@@ -185,7 +171,7 @@ struct YearView: View {
             self.kDays = foundYear.kDays
         } else {
             self.entitledDays = 26
-            self.kDays = 5 - daysTakenForYear(year - 1)
+            self.kDays = 5 - viewModel.daysTaken(year: year - 1, currentDate: currentDate)
             saveYearStartingDays()
         }
     }
