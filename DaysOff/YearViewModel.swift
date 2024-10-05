@@ -14,13 +14,58 @@ final class YearViewModel {
     var daysOff = [DayOffModel]()
     var entitledDays: Float = 26
     var kDays: Float = 5
-    var year: Int = 0
+    var yearValue: Int = 0
     let currentDate: Date
+    var futureDaysPredicate: Predicate<DayOffModel>?
+    var thisMonthDaysPredicate: Predicate<DayOffModel>?
+    var lastMonthDaysPredicate: Predicate<DayOffModel>?
+    var previousDaysPredicate: Predicate<DayOffModel>?
+
+    var year: Int {
+        get { yearValue }
+        set {
+            yearValue = newValue
+            setPredicates()
+        }
+    }
 
     init(modelContext: ModelContext,
          currentDate: Date) {
         self.modelContext = modelContext
         self.currentDate = currentDate
+    }
+
+    private func setPredicates() {
+        guard let startOfFocusedYear = Calendar.current.date(from: DateComponents(year: year)),
+              let endOfFocusedYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfFocusedYear) else {
+            fatalError("Expects to derives start of year")
+        }
+
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: currentDate)
+        components.day = 1
+        guard let startOfCurrentMonth = Calendar.current.date(from: components),
+           let startOfNextMonth = Calendar.current.date(byAdding: .month, value: 1, to: startOfCurrentMonth),
+           let startOfPrevMonth = Calendar.current.date(byAdding: .month, value: -1, to: startOfCurrentMonth) else {
+            fatalError("Expects to derives dates")
+        }
+
+        futureDaysPredicate = #Predicate<DayOffModel> { $0.date >= startOfNextMonth &&
+                                                        $0.date >= startOfFocusedYear &&
+                                                        $0.date < endOfFocusedYear }
+
+        thisMonthDaysPredicate = #Predicate<DayOffModel> { $0.date >= startOfCurrentMonth &&
+                                                      $0.date < startOfNextMonth &&
+                                                      $0.date >= startOfFocusedYear &&
+                                                      $0.date < endOfFocusedYear }
+
+        lastMonthDaysPredicate = #Predicate<DayOffModel> { $0.date >= startOfPrevMonth &&
+                                                      $0.date < startOfCurrentMonth &&
+                                                      $0.date >= startOfFocusedYear &&
+                                                      $0.date < endOfFocusedYear }
+
+        previousDaysPredicate = #Predicate<DayOffModel> { $0.date < startOfPrevMonth &&
+                                                     $0.date >= startOfFocusedYear &&
+                                                     $0.date < endOfFocusedYear }
     }
 
     func fetchData() throws {

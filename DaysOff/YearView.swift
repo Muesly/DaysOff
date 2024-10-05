@@ -29,40 +29,10 @@ struct YearView: View {
         kDays = viewModel.kDays
         viewModel.year = year.wrappedValue
 
-        guard let startOfFocusedYear = Calendar.current.date(from: DateComponents(year: year.wrappedValue)),
-              let endOfFocusedYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfFocusedYear) else {
-            fatalError("Expects to derives start of year")
-        }
-
-        var components = Calendar.current.dateComponents([.year, .month, .day], from: viewModel.currentDate)
-        components.day = 1
-        guard let startOfCurrentMonth = Calendar.current.date(from: components),
-           let startOfNextMonth = Calendar.current.date(byAdding: .month, value: 1, to: startOfCurrentMonth),
-           let startOfPrevMonth = Calendar.current.date(byAdding: .month, value: -1, to: startOfCurrentMonth) else {
-            fatalError("Expects to derives dates")
-        }
-        let futureDays = #Predicate<DayOffModel> { $0.date >= startOfNextMonth &&
-                                                   $0.date >= startOfFocusedYear &&
-                                                   $0.date < endOfFocusedYear }
-
-        let thisMonthDays = #Predicate<DayOffModel> { $0.date >= startOfCurrentMonth &&
-                                                      $0.date < startOfNextMonth &&
-                                                      $0.date >= startOfFocusedYear &&
-                                                      $0.date < endOfFocusedYear }
-
-        let lastMonthDays = #Predicate<DayOffModel> { $0.date >= startOfPrevMonth &&
-                                                      $0.date < startOfCurrentMonth &&
-                                                      $0.date >= startOfFocusedYear &&
-                                                      $0.date < endOfFocusedYear }
-
-        let previousDays = #Predicate<DayOffModel> { $0.date < startOfPrevMonth &&
-                                                     $0.date >= startOfFocusedYear &&
-                                                     $0.date < endOfFocusedYear }
-
-        _futureDays = Query(filter: futureDays, sort: \DayOffModel.date)
-        _thisMonthDays = Query(filter: thisMonthDays, sort: \DayOffModel.date)
-        _lastMonthDays = Query(filter: lastMonthDays, sort: \DayOffModel.date)
-        _previousDays = Query(filter: previousDays, sort: \DayOffModel.date)
+        _futureDays = Query(filter: viewModel.futureDaysPredicate, sort: \DayOffModel.date)
+        _thisMonthDays = Query(filter: viewModel.thisMonthDaysPredicate, sort: \DayOffModel.date)
+        _lastMonthDays = Query(filter: viewModel.lastMonthDaysPredicate, sort: \DayOffModel.date)
+        _previousDays = Query(filter: viewModel.previousDaysPredicate, sort: \DayOffModel.date)
     }
     
     var body: some View {
@@ -114,7 +84,7 @@ struct YearView: View {
         }
         .padding()
         List {
-            DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }), onDelete: onDelete)
+            DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }), onDelete: onDelete)   // .reversed so that an array
             DaysOffSection(heading: "This Month", colour: .foregroundPrimary, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }), onDelete: onDelete)
             DaysOffSection(heading: "Last Month", colour: .foregroundPrimary, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }), onDelete: onDelete)
             DaysOffSection(heading: "Previous Months", colour: .foregroundSecondary, daysOff: Binding(get: previousDays.reversed, set: { _ in }), onDelete: onDelete)
