@@ -15,10 +15,12 @@ final class YearViewModel {
     var entitledDays: Float = 26
     var kDays: Float = 5
     var year: Int = 0
-    var currentDate: Date = Date()
+    let currentDate: Date
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext,
+         currentDate: Date) {
         self.modelContext = modelContext
+        self.currentDate = currentDate
     }
 
     func fetchData() throws {

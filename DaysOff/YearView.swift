@@ -21,21 +21,20 @@ struct YearView: View {
     @Query private var lastMonthDays: [DayOffModel]
     @Query private var previousDays: [DayOffModel]
 
-    init(currentDate: Binding<Date>, year: Binding<Int>, viewModel: YearViewModel) {
+    init(year: Binding<Int>, viewModel: YearViewModel) {
         _year = year
-        self.dateToTake = currentDate.wrappedValue
         self.viewModel = viewModel
+        dateToTake = viewModel.currentDate
         entitledDays = viewModel.entitledDays
         kDays = viewModel.kDays
-        self.viewModel.year = year.wrappedValue
-        self.viewModel.currentDate = currentDate.wrappedValue
+        viewModel.year = year.wrappedValue
 
         guard let startOfFocusedYear = Calendar.current.date(from: DateComponents(year: year.wrappedValue)),
               let endOfFocusedYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfFocusedYear) else {
             fatalError("Expects to derives start of year")
         }
 
-        var components = Calendar.current.dateComponents([.year, .month, .day], from: currentDate.wrappedValue)
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: viewModel.currentDate)
         components.day = 1
         guard let startOfCurrentMonth = Calendar.current.date(from: components),
            let startOfNextMonth = Calendar.current.date(byAdding: .month, value: 1, to: startOfCurrentMonth),
@@ -164,5 +163,5 @@ struct YearView: View {
 }
 
 #Preview {
-    YearView(currentDate: .constant(Date()), year: .constant(2024), viewModel: YearViewModel(modelContext: .inMemory))
+    YearView(year: .constant(2024), viewModel: YearViewModel(modelContext: .inMemory, currentDate: Date()))
 }

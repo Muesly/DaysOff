@@ -27,7 +27,8 @@ struct DaysOffView: View {
             VStack(alignment: .leading) {
                 YearSelectorView(year: $year)
                     .padding(.top, 20)
-                YearView(currentDate: $currentDate, year: $year, viewModel: YearViewModel(modelContext: modelContext))
+                YearView(year: $year, viewModel: YearViewModel(modelContext: modelContext,
+                                                               currentDate: currentDate))
             }
             .background(
                 LinearGradient(gradient:
