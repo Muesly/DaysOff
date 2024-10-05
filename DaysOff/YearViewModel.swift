@@ -23,16 +23,18 @@ final class YearViewModel {
 
     var year: Int {
         get { yearValue }
-        set {
-            yearValue = newValue
-            setPredicates()
-        }
+        set { yearValue = newValue
+              setPredicates() }
     }
 
     init(modelContext: ModelContext,
          currentDate: Date) {
         self.modelContext = modelContext
         self.currentDate = currentDate
+
+        if let currentYear = Calendar.current.dateComponents([.year], from: currentDate).year {
+            self.year = currentYear
+        }
     }
 
     private func setPredicates() {
