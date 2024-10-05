@@ -31,6 +31,7 @@ final class DaysOffUITests: XCTestCase {
         XCTAssert(app.navigationBars["Days Off"].staticTexts["Days Off"].exists)
         XCTAssert(app.staticTexts["2024"].exists)
         XCTAssert(app.staticTexts["Days Left: 31 days"].exists)
+        app.buttons["Expand Button"].tap()
 
         app.buttons["Take 1 Day"].tap()
         XCTAssert(app.staticTexts["Days Left: 30 days"].exists)
@@ -67,6 +68,7 @@ final class DaysOffUITests: XCTestCase {
     @MainActor
     func test_addingIntoDifferentSections() {
         let app = setupApp()
+        app.buttons["Expand Button"].tap()
 
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
         sleep(1)
@@ -127,6 +129,7 @@ final class DaysOffUITests: XCTestCase {
     @MainActor
     func test_changingYears() {
         let app = setupApp(seed: true)
+        app.buttons["Expand Button"].tap()
 
         let startingYearText = app.staticTexts["2024"]
         XCTAssert(startingYearText.exists)
@@ -148,6 +151,7 @@ final class DaysOffUITests: XCTestCase {
         // Given app is started in 2024
         var app = setupApp()
         XCTAssert(app.staticTexts["2024"].exists)
+        app.buttons["Expand Button"].tap()
 
         // Then
         XCTAssert(app.staticTexts["Starting Total: 31 days (26 + 5)"].exists)
@@ -166,6 +170,7 @@ final class DaysOffUITests: XCTestCase {
 
         // When I restart app without resetting
         app = setupApp(reset: false)
+        app.buttons["Expand Button"].tap()
 
         // Then it remembers days
         XCTAssert(app.staticTexts["Starting Total: 28.5 days (26 + 2.5)"].exists)
