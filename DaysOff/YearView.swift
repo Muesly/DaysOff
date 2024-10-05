@@ -13,9 +13,6 @@ struct YearView: View {
     @State private var dateToTake: Date
     @State private var viewModel: YearViewModel
     @Binding private var year: Int
-    @State private var entitledDays: Float
-    @State private var kDays: Float
-    @State private var isEditStartingNumDaysPresented = false
     @Query private var futureDays: [DayOffModel]
     @Query private var thisMonthDays: [DayOffModel]
     @Query private var lastMonthDays: [DayOffModel]
@@ -25,8 +22,6 @@ struct YearView: View {
         _year = year
         self.viewModel = viewModel
         dateToTake = viewModel.currentDate
-        entitledDays = viewModel.entitledDays
-        kDays = viewModel.kDays
         viewModel.year = year.wrappedValue
 
         _futureDays = Query(filter: viewModel.futureDaysPredicate, sort: \DayOffModel.date)
@@ -36,27 +31,7 @@ struct YearView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("Starting Total: \(viewModel.numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.numDaysToTake)) (\(viewModel.entitledDays, format: Formatters.oneDPFormat) + \(viewModel.kDays, format: Formatters.oneDPFormat))")
-                Button {
-                    isEditStartingNumDaysPresented = true
-                } label: {
-                    Image(systemName: "pencil")
-                }
-                .accessibilityIdentifier("Edit Starting Number Of Days")
-            }
-            VStack(alignment: .leading) {
-                Text("Days Taken So Far: \(viewModel.daysTaken, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysTaken(year: year, currentDate: viewModel.currentDate)))")
-                Text("Days Left: \(viewModel.daysLeft, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysLeft))")
-                    .bold()
-                VStack(alignment: .leading) {
-                    Text("Days Reserved: \(viewModel.daysReserved, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysReserved))")
-                    Text("Days To Plan: \(viewModel.daysToPlan, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysLeft))")
-                }.padding(.leading, 20)
-            }.padding(.leading, 20)
-        }
-        .padding()
+        DaysStatsView(viewModel: viewModel, year: 2024)
         HStack {
             DatePicker(
                 "",
@@ -98,21 +73,6 @@ struct YearView: View {
             viewModel.year = year
             try? viewModel.getOrUpdateStartingDays()
         }
-        .onChange(of: entitledDays) {
-            viewModel.entitledDays = entitledDays
-            try? viewModel.updateStartingDays()
-        }
-        .onChange(of: kDays) {
-            viewModel.kDays = kDays
-            try? viewModel.updateStartingDays()
-        }
-        .sheet(isPresented: $isEditStartingNumDaysPresented) {
-            EditStartingNumDaysView(entitledDays: $entitledDays, kDays: $kDays)
-        }
-    }
-
-    private func dayStr(for number: Float) -> String {
-        (number == 1) ? "day" : "days"
     }
 
     private func onDelete(_ dayOffModel: DayOffModel) {
