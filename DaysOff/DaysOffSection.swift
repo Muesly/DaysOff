@@ -10,7 +10,6 @@ import SwiftUI
 
 struct DaysOffSection: View {
     @Environment(\.modelContext) private var modelContext
-
     let heading: String
     let colour: Color
     @Binding var daysOff: [DayOffModel]
@@ -23,6 +22,7 @@ struct DaysOffSection: View {
                     .foregroundStyle(colour)
             }
             .onDelete(perform: deleteDayOff)
+            .id(heading)
         } header: {
             Text(heading)
         }

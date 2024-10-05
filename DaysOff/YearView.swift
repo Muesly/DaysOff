@@ -12,6 +12,7 @@ struct YearView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var dateToTake: Date
     @State private var viewModel: YearViewModel
+    @State private var isFutureExpanded: Bool = true
     @Binding private var year: Int
     @Query private var futureDays: [DayOffModel]
     @Query private var thisMonthDays: [DayOffModel]
@@ -58,16 +59,19 @@ struct YearView: View {
             }
         }
         .padding()
-        List {
-            DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }), onDelete: onDelete)   // .reversed so that an array
-            DaysOffSection(heading: "This Month", colour: .foregroundPrimary, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }), onDelete: onDelete)
-            DaysOffSection(heading: "Last Month", colour: .foregroundPrimary, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }), onDelete: onDelete)
-            DaysOffSection(heading: "Previous Months", colour: .foregroundSecondary, daysOff: Binding(get: previousDays.reversed, set: { _ in }), onDelete: onDelete)
-        }
-        .scrollContentBackground(.hidden)
-        .onAppear {
-            try? viewModel.fetchData()
-            try? viewModel.getOrUpdateStartingDays()
+        ScrollViewReader { proxy in
+            List {
+                DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }), onDelete: onDelete)   // .reversed so that an array
+                DaysOffSection(heading: "This Month", colour: .foregroundPrimary, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }), onDelete: onDelete)
+                DaysOffSection(heading: "Last Month", colour: .foregroundPrimary, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }), onDelete: onDelete)
+                DaysOffSection(heading: "Previous Months", colour: .foregroundSecondary, daysOff: Binding(get: previousDays.reversed, set: { _ in }), onDelete: onDelete)
+            }
+            .scrollContentBackground(.hidden)
+            .onAppear {
+                try? viewModel.fetchData()
+                try? viewModel.getOrUpdateStartingDays()
+                proxy.scrollTo("This Month", anchor: .top)
+            }
         }
         .onChange(of: year) {
             viewModel.year = year
