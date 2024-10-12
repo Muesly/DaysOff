@@ -119,7 +119,7 @@ final class DaysOffUITests: XCTestCase {
         XCTAssert(daysTakenList.staticTexts["Previous Months"].exists)
         XCTAssert(daysTakenList.staticTexts["Wednesday 31 July 2024 - 1 day"].exists)
 
-        XCTAssert(app.staticTexts["Starting Total: 31 days (26 + 5)"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 31 days"].exists)
         XCTAssert(app.staticTexts["Days Taken So Far: 2 days"].exists)
         XCTAssert(app.staticTexts["Days Left: 29 days"].exists)
         XCTAssert(app.staticTexts["Days Reserved: 2 days"].exists)
@@ -154,7 +154,7 @@ final class DaysOffUITests: XCTestCase {
         app.buttons["Expand Button"].tap()
 
         // Then
-        XCTAssert(app.staticTexts["Starting Total: 31 days (26 + 5)"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 31 days"].exists)
 
         // When I set K days to 2.5
         app.buttons["Edit Starting Number Of Days"].tap()
@@ -166,21 +166,21 @@ final class DaysOffUITests: XCTestCase {
         app.buttons["Save"].tap()
 
         // Then
-        XCTAssert(app.staticTexts["Starting Total: 28.5 days (26 + 2.5)"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 28.5 days"].exists)
 
         // When I restart app without resetting
         app = setupApp(reset: false)
         app.buttons["Expand Button"].tap()
 
         // Then it remembers days
-        XCTAssert(app.staticTexts["Starting Total: 28.5 days (26 + 2.5)"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 28.5 days"].exists)
 
         // When I go to 2025
         app.buttons["Next Year"].tap()
         XCTAssert(app.staticTexts["2025"].exists)
 
         // Then days go back to default
-        XCTAssert(app.staticTexts["Starting Total: 31 days (26 + 5)"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 31 days"].exists)
 
         // When entitled days is changed to 0
         app.buttons["Edit Starting Number Of Days"].tap()
@@ -192,7 +192,7 @@ final class DaysOffUITests: XCTestCase {
         app.buttons["Save"].tap()
 
         // Then
-        XCTAssert(app.staticTexts["Starting Total: 5 days (0 + 5)"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 5 days"].exists)
 
         // When a day is added
         app.datePickers.firstMatch.buttons["Date Picker"].tap()
@@ -211,7 +211,7 @@ final class DaysOffUITests: XCTestCase {
 
         // Then 4 K days are carried over, not 5
         XCTAssert(app.staticTexts["2026"].exists)
-        XCTAssert(app.staticTexts["Starting Total: 30 days (26 + 4)"].exists)
+        XCTAssert(app.staticTexts["Starting Total: 30 days"].exists)
     }
 }
 

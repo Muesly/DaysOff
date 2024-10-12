@@ -19,8 +19,9 @@ struct DaysOffApp: App {
         self.currentDate = Self.overriddenDate ?? Date()
 
         if Self.isResettingApplication {
-            try? sharedModelContainer.mainContext.delete(model: DayOffModel.self)
-            try? sharedModelContainer.mainContext.delete(model: YearStartingDaysModel.self)
+            let modelContext = sharedModelContainer.mainContext
+            try? modelContext.delete(model: DayOffModel.self)
+            try? modelContext.delete(model: YearStartingDaysModel.self)
         }
 
         if Self.seedData {

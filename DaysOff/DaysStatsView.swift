@@ -34,7 +34,9 @@ struct DaysStatsView: View {
                     if isExpanded {
                         VStack(alignment: .leading) {
                             HStack {
-                                Text("Starting Total: \(viewModel.numDaysToTake, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.numDaysToTake)) (\(viewModel.entitledDays, format: Formatters.oneDPFormat) + \(viewModel.kDays, format: Formatters.oneDPFormat))")
+                                DayInfoRow(title: "Starting Total", value: viewModel.numDaysToTake)
+                                Text("(\(viewModel.entitledDays, format: Formatters.oneDPFormat) + \(viewModel.kDays, format: Formatters.oneDPFormat))")
+                                    .foregroundColor(.secondary)
                                 Button {
                                     isEditStartingNumDaysPresented = true
                                 } label: {
@@ -42,20 +44,24 @@ struct DaysStatsView: View {
                                 }
                                 .accessibilityIdentifier("Edit Starting Number Of Days")
                             }
-                            VStack(alignment: .leading) {
-                                Text("Days Taken So Far: \(viewModel.daysTaken, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysTaken(year: year, currentDate: viewModel.currentDate)))")
-                                Text("Days Left: \(viewModel.daysLeft, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysLeft))")
-                                    .bold()
-                                VStack(alignment: .leading) {
-                                    Text("Days Reserved: \(viewModel.daysReserved, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysReserved))")
-                                    Text("Days To Plan: \(viewModel.daysToPlan, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysLeft))")
-                                }.padding(.leading, 20)
-                            }.padding(.leading, 20)
+                            
+                            Group {
+                                DayInfoRow(title: "Days Taken So Far", value: viewModel.daysTaken(year: year, currentDate: viewModel.currentDate))
+                                DayInfoRow(title: "Days Left", value: viewModel.daysLeft)
+                                    .fontWeight(.bold)
+
+                                Group {
+                                    DayInfoRow(title: "Days Reserved", value: viewModel.daysReserved)
+                                    DayInfoRow(title: "Days To Plan", value: viewModel.daysToPlan)
+                                }
+                                .padding(.leading, 20)
+                            }
+                            .padding(.leading, 20)
                         }
                     } else {
-                        Text("Days Left: \(viewModel.daysLeft, format: Formatters.oneDPFormat) \(dayStr(for: viewModel.daysLeft))")
+                        DayInfoRow(title: "Days Left", value: viewModel.daysLeft)
+                            .fontWeight(.bold)
                             .font(.title2)
-                            .bold()
                     }
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .padding(.top, 1)
@@ -79,8 +85,17 @@ struct DaysStatsView: View {
         }
     }
 
-    private func dayStr(for number: Float) -> String {
+    private static func dayStr(for number: Float) -> String {
         (number == 1) ? "day" : "days"
+    }
+
+    struct DayInfoRow: View {
+        let title: String
+        let value: Float
+
+        var body: some View {
+            Text("\(title): \(value, format: Formatters.oneDPFormat) \(DaysStatsView.dayStr(for: value))")
+        }
     }
 }
 
