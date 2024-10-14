@@ -63,7 +63,7 @@ struct YearView: View {
                 }
             }
             if isPickingDate {
-                TakeDaysView()
+                TakeDaysView(viewModel: TakeDaysViewModel(currentDate: viewModel.currentDate))
                     .offset(x: 0, y: 50)
             }
         }
