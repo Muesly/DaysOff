@@ -18,6 +18,7 @@ struct YearView: View {
     @Query private var thisMonthDays: [DayOffModel]
     @Query private var lastMonthDays: [DayOffModel]
     @Query private var previousDays: [DayOffModel]
+    @State private var isPickingDate: Bool = false
 
     init(year: Binding<Int>, viewModel: YearViewModel) {
         _year = year
@@ -30,47 +31,40 @@ struct YearView: View {
         _lastMonthDays = Query(filter: viewModel.lastMonthDaysPredicate, sort: \DayOffModel.date)
         _previousDays = Query(filter: viewModel.previousDaysPredicate, sort: \DayOffModel.date)
     }
-    
+
     var body: some View {
         DaysStatsView(viewModel: viewModel, year: 2024)
-        HStack {
-            DatePicker(
-                "",
-                selection: $dateToTake,
-                displayedComponents: [.date]
-            )
-            Button("Take 1 Day") {
-                withAnimation {
-                    do {
-                        try viewModel.takeDay(dateToTake, type: .fullDay)
-                    } catch {
-                        print("Failed to take day: \(error)")
+        ZStack(alignment: .top) {
+            VStack(alignment: .center) {
+                Button {
+                    withAnimation {
+                        isPickingDate = true
+                    }
+                } label: {
+                    HStack {
+                        Text("Take Day")
+                        Image(systemName: "calendar")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                ScrollViewReader { proxy in
+                    List {
+                        DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }), onDelete: onDelete)   // .reversed so that an array
+                        DaysOffSection(heading: "This Month", colour: .foregroundPrimary, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }), onDelete: onDelete)
+                        DaysOffSection(heading: "Last Month", colour: .foregroundPrimary, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }), onDelete: onDelete)
+                        DaysOffSection(heading: "Previous Months", colour: .foregroundSecondary, daysOff: Binding(get: previousDays.reversed, set: { _ in }), onDelete: onDelete)
+                    }
+                    .scrollContentBackground(.hidden)
+                    .onAppear {
+                        try? viewModel.fetchData()
+                        try? viewModel.getOrUpdateStartingDays()
+                        proxy.scrollTo("This Month", anchor: .top)
                     }
                 }
             }
-            Button("Take 1/2 Day") {
-                withAnimation {
-                    do {
-                        try viewModel.takeDay(dateToTake, type: .halfDay)
-                    } catch {
-                        print("Failed to take half day: \(error)")
-                    }
-                }
-            }
-        }
-        .padding()
-        ScrollViewReader { proxy in
-            List {
-                DaysOffSection(heading: "Future Months", colour: .foregroundSecondary, daysOff: Binding(get: futureDays.reversed, set: { _ in }), onDelete: onDelete)   // .reversed so that an array
-                DaysOffSection(heading: "This Month", colour: .foregroundPrimary, daysOff: Binding(get: thisMonthDays.reversed, set: { _ in }), onDelete: onDelete)
-                DaysOffSection(heading: "Last Month", colour: .foregroundPrimary, daysOff: Binding(get: lastMonthDays.reversed, set: { _ in }), onDelete: onDelete)
-                DaysOffSection(heading: "Previous Months", colour: .foregroundSecondary, daysOff: Binding(get: previousDays.reversed, set: { _ in }), onDelete: onDelete)
-            }
-            .scrollContentBackground(.hidden)
-            .onAppear {
-                try? viewModel.fetchData()
-                try? viewModel.getOrUpdateStartingDays()
-                proxy.scrollTo("This Month", anchor: .top)
+            if isPickingDate {
+                TakeDaysView()
+                    .offset(x: 0, y: 50)
             }
         }
         .onChange(of: year) {

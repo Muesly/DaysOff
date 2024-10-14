@@ -7,8 +7,8 @@
 
 import XCTest
 
-final class DaysOffUITests: XCTestCase {
-    private func setupApp(currentDateStr: String = "16 Sep 2024",
+class DaysOffUITests: XCTestCase {
+    func setupApp(currentDateStr: String = "16 Sep 2024",
                           seed: Bool = false,
                           reset: Bool = true) -> XCUIApplication {
         let app = XCUIApplication()
