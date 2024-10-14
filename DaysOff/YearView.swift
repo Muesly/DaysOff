@@ -64,7 +64,7 @@ struct YearView: View {
             }
             if isPickingDate {
                 TakeDaysView(viewModel: TakeDaysViewModel(currentDate: viewModel.currentDate))
-                    .offset(x: 0, y: 50)
+                    .offset(x: 0, y: 45)
             }
         }
         .onChange(of: year) {

@@ -29,10 +29,14 @@ struct TakeDaysView: View {
                         .padding(5)
                 }
                 ForEach(1 ... viewModel.daysInFocusedMonth, id: \.self) { day in
-                    Button("\(day)") {
-
+                    Button {
+                        viewModel.selectDay(day: day)
+                    } label: {
+                        Text("\(day)")
                     }
                     .padding(5)
+                    .frame(width: 40, height: 40)
+                    .background(viewModel.isDaySelected(day) ? Color.backgroundSecondary : Color.backgroundPrimary)
                 }
             }
             .padding()
@@ -47,10 +51,12 @@ struct TakeDaysView: View {
     TakeDaysView(viewModel: .init(currentDate: Date()))
 }
 
+@Observable
 class TakeDaysViewModel {
     let currentDate: Date
     let dateFormatter: DateFormatter
     let daysOfWeek: [DayOfWeek]
+    var startDate: Date?
 
     struct DayOfWeek: Identifiable {
         var id: Int {
@@ -90,5 +96,23 @@ class TakeDaysViewModel {
         let dateForFirstDay = calendar.date(from: currentMonthComponents)!
         let dayOfFirstDayOfMonth = calendar.dateComponents([.weekday], from: dateForFirstDay).weekday!
         return dayOfFirstDayOfMonth == 1 ? 7 : dayOfFirstDayOfMonth - 2
+    }
+
+    func selectDay(day: Int) {
+        let calendar = NSCalendar.current
+        var currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
+        currentMonthComponents.day = day
+        startDate = calendar.date(from: currentMonthComponents)!
+    }
+
+    func isDaySelected(_ day: Int) -> Bool {
+        guard let startDate else {
+            return false
+        }
+        let calendar = NSCalendar.current
+        var currentMonthComponents = calendar.dateComponents([.month, .year], from: startDate)
+        currentMonthComponents.day = day
+        let date = calendar.date(from: currentMonthComponents)!
+        return date == startDate
     }
 }
