@@ -10,13 +10,29 @@ import Foundation
 import SwiftUI
 
 struct TakeDaysView: View {
+    @Binding var isPresented: Bool
+    @Binding var selectedRange: DateRange?
+
     let viewModel: TakeDaysViewModel
     let columns: [GridItem] = [GridItem(.fixed(40)), GridItem(.fixed(40)), GridItem(.fixed(40)), GridItem(.fixed(40)), GridItem(.fixed(40)), GridItem(.fixed(40)), GridItem(.fixed(40))]
 
     var body: some View {
         VStack {
-            Text(viewModel.currentMonthStr)
-                .padding(.top, 10)
+            HStack {
+                Button("Cancel") {
+                    isPresented = false
+                }
+                .padding()
+                Spacer()
+                Text(viewModel.currentMonthStr)
+                    .padding()
+                Spacer()
+                Button("Save") {
+                    selectedRange = viewModel.dateRange
+                    isPresented = false
+                }
+                .padding()
+            }
             LazyVGrid(columns: columns) {
                 ForEach(viewModel.daysOfWeek) { dayOfWeek in
                     Text(dayOfWeek.dayStr)
@@ -36,19 +52,19 @@ struct TakeDaysView: View {
                     }
                     .padding(5)
                     .frame(width: 40, height: 40)
+                    .foregroundColor(.foregroundPrimary)
                     .background(viewModel.isDaySelected(day) ? Color.backgroundSecondary : Color.backgroundPrimary)
                 }
             }
             .padding()
         }
         .background(RoundedRectangle(cornerRadius: 10).fill(.backgroundPrimary))
-        .foregroundColor(.foregroundPrimary)
         .padding()
     }
 }
 
 #Preview {
-    TakeDaysView(viewModel: .init(currentDate: Date()))
+    TakeDaysView(isPresented: .constant(true), selectedRange: .constant(nil), viewModel: .init(currentDate: Date()))
 }
 
 @Observable
@@ -95,7 +111,7 @@ class TakeDaysViewModel {
         let currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
         let dateForFirstDay = calendar.date(from: currentMonthComponents)!
         let dayOfFirstDayOfMonth = calendar.dateComponents([.weekday], from: dateForFirstDay).weekday!
-        return dayOfFirstDayOfMonth == 1 ? 7 : dayOfFirstDayOfMonth - 2
+        return dayOfFirstDayOfMonth == 1 ? 6 : dayOfFirstDayOfMonth - 2
     }
 
     func selectDay(day: Int) {
@@ -114,5 +130,12 @@ class TakeDaysViewModel {
         currentMonthComponents.day = day
         let date = calendar.date(from: currentMonthComponents)!
         return date == startDate
+    }
+
+    var dateRange: DateRange? {
+        guard let startDate else {
+            return nil
+        }
+        return DateRange(startDate: startDate, startDayOffType: .fullDay, endDate: nil, endDayOffType: nil)
     }
 }

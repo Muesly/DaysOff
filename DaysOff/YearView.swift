@@ -19,6 +19,7 @@ struct YearView: View {
     @Query private var lastMonthDays: [DayOffModel]
     @Query private var previousDays: [DayOffModel]
     @State private var isPickingDate: Bool = false
+    @State private var selectedDateRange: DateRange?
 
     init(year: Binding<Int>, viewModel: YearViewModel) {
         _year = year
@@ -63,13 +64,27 @@ struct YearView: View {
                 }
             }
             if isPickingDate {
-                TakeDaysView(viewModel: TakeDaysViewModel(currentDate: viewModel.currentDate))
+                TakeDaysView(isPresented: $isPickingDate,
+                             selectedRange: $selectedDateRange,
+                             viewModel: TakeDaysViewModel(currentDate: viewModel.currentDate))
                     .offset(x: 0, y: 45)
             }
         }
         .onChange(of: year) {
             viewModel.year = year
             try? viewModel.getOrUpdateStartingDays()
+        }
+        .onChange(of: selectedDateRange) {
+            if let selectedDateRange {
+                withAnimation {
+                    do {
+                        try viewModel.takeRangeOfDays(dateRange: selectedDateRange)
+                    } catch {
+                        print("Failed to take range of days")
+                    }
+                }
+            }
+            selectedDateRange = nil
         }
     }
 
@@ -92,4 +107,11 @@ struct YearView: View {
 
 #Preview {
     YearView(year: .constant(2024), viewModel: YearViewModel(modelContext: .inMemory, currentDate: Date()))
+}
+
+struct DateRange: Equatable {
+    let startDate: Date
+    let startDayOffType: DayOffType
+    let endDate: Date?
+    let endDayOffType: DayOffType?
 }

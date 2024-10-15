@@ -21,5 +21,13 @@ final class TakeDaysUITests: DaysOffUITests {
         for i in 1...30 {
             XCTAssert(app.buttons["\(i)"].exists)
         }
+        XCTAssertFalse(app.buttons["31"].exists)
+
+        app.buttons["6"].tap()
+        app.buttons["Save"].tap()
+
+        let daysTakenList = app.collectionViews.firstMatch
+        XCTAssert(daysTakenList.staticTexts["Friday 6 September 2024 - 1 day"].exists)
+        XCTAssert(app.staticTexts["Days Left: 30 days"].exists)
     }
 }

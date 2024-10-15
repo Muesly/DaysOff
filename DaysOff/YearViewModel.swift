@@ -75,6 +75,22 @@ final class YearViewModel {
         daysOff = try modelContext.fetch(descriptor)
     }
 
+    func takeRangeOfDays(dateRange: DateRange) throws {
+        var dateBeingTaken = dateRange.startDate
+        var typeBeingTaken = dateRange.startDayOffType
+        let endDate = dateRange.endDate ?? dateRange.startDate
+        let endDayOffType = dateRange.endDayOffType ?? dateRange.startDayOffType
+
+        while dateBeingTaken <= endDate {
+            let newItem = DayOffModel(date: dateBeingTaken, type: typeBeingTaken)
+            modelContext.insert(newItem)
+            dateBeingTaken.addTimeInterval(86400)
+            typeBeingTaken = (dateBeingTaken == endDate) ? endDayOffType : .fullDay // In between start and end, full days assumed
+        }
+        try modelContext.save()
+        try fetchData()
+    }
+
     func takeDay(_ date: Date, type: DayOffType) throws {
         let newItem = DayOffModel(date: date, type: type)
         modelContext.insert(newItem)
