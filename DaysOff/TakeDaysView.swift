@@ -18,20 +18,41 @@ struct TakeDaysView: View {
 
     var body: some View {
         VStack {
-            HStack {
+            HStack(alignment: .center) {
                 Button("Cancel") {
                     isPresented = false
                 }
                 .padding()
-                Spacer()
-                Text(viewModel.currentMonthStr)
-                    .padding()
                 Spacer()
                 Button("Save") {
                     selectedRange = viewModel.dateRange
                     isPresented = false
                 }
                 .padding()
+            }
+            HStack(alignment: .center) {
+                Spacer()
+                Button {
+                    withAnimation(.none) {
+                        viewModel.moveToPreviousMonth()
+                    }
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+                .accessibilityLabel("Previous Month")
+                Text(viewModel.currentMonthStr)
+                    .padding(.horizontal, 10)
+                    .frame(width: 100)
+                    .font(.title3)
+                Button {
+                    withAnimation(.none) {
+                        viewModel.moveToNextMonth()
+                    }
+                } label: {
+                    Image(systemName: "chevron.right")
+                }
+                .accessibilityLabel("Next Month")
+                Spacer()
             }
             LazyVGrid(columns: columns) {
                 ForEach(viewModel.daysOfWeek) { dayOfWeek in
@@ -40,7 +61,7 @@ struct TakeDaysView: View {
                         .frame(width: 30)
                         .padding(5)
                 }
-                ForEach(1 ... viewModel.numLeadingEmptyItems, id: \.self) { _ in
+                ForEach(0 ..< viewModel.numLeadingEmptyItems, id: \.self) { _ in
                     Text("")
                         .padding(5)
                 }
@@ -65,77 +86,4 @@ struct TakeDaysView: View {
 
 #Preview {
     TakeDaysView(isPresented: .constant(true), selectedRange: .constant(nil), viewModel: .init(currentDate: Date()))
-}
-
-@Observable
-class TakeDaysViewModel {
-    let currentDate: Date
-    let dateFormatter: DateFormatter
-    let daysOfWeek: [DayOfWeek]
-    var startDate: Date?
-
-    struct DayOfWeek: Identifiable {
-        var id: Int {
-            weekDay
-        }
-        let dayStr: String
-        let weekDay: Int
-    }
-
-    init(currentDate: Date) {
-        self.currentDate = currentDate
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM yy"
-        self.dateFormatter = dateFormatter
-
-        self.daysOfWeek = [.init(dayStr: "M", weekDay: 1),
-                           .init(dayStr: "T", weekDay: 2),
-                           .init(dayStr: "W", weekDay: 3),
-                           .init(dayStr: "T", weekDay: 4),
-                           .init(dayStr: "F", weekDay: 5),
-                           .init(dayStr: "S", weekDay: 6),
-                           .init(dayStr: "S", weekDay: 7)]
-    }
-
-    var currentMonthStr: String {
-        dateFormatter.string(from: currentDate)
-    }
-
-    var daysInFocusedMonth: Int {
-        NSCalendar.current.range(of: .day, in: .month, for: currentDate)!.count
-    }
-
-    var numLeadingEmptyItems: Int {
-        let calendar = NSCalendar.current
-        let currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
-        let dateForFirstDay = calendar.date(from: currentMonthComponents)!
-        let dayOfFirstDayOfMonth = calendar.dateComponents([.weekday], from: dateForFirstDay).weekday!
-        return dayOfFirstDayOfMonth == 1 ? 6 : dayOfFirstDayOfMonth - 2
-    }
-
-    func selectDay(day: Int) {
-        let calendar = NSCalendar.current
-        var currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
-        currentMonthComponents.day = day
-        startDate = calendar.date(from: currentMonthComponents)!
-    }
-
-    func isDaySelected(_ day: Int) -> Bool {
-        guard let startDate else {
-            return false
-        }
-        let calendar = NSCalendar.current
-        var currentMonthComponents = calendar.dateComponents([.month, .year], from: startDate)
-        currentMonthComponents.day = day
-        let date = calendar.date(from: currentMonthComponents)!
-        return date == startDate
-    }
-
-    var dateRange: DateRange? {
-        guard let startDate else {
-            return nil
-        }
-        return DateRange(startDate: startDate, startDayOffType: .fullDay, endDate: nil, endDayOffType: nil)
-    }
 }
