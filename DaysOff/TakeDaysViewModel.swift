@@ -13,6 +13,7 @@ class TakeDaysViewModel {
     let dateFormatter: DateFormatter
     let daysOfWeek: [DayOfWeek]
     var startDate: Date?
+    var startDateType: DayOffType?
 
     struct DayOfWeek: Identifiable {
         var id: Int {
@@ -58,25 +59,36 @@ class TakeDaysViewModel {
         let calendar = NSCalendar.current
         var currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
         currentMonthComponents.day = day
-        startDate = calendar.date(from: currentMonthComponents)!
+        let selectedDate = calendar.date(from: currentMonthComponents)!
+        if selectedDate == startDate {
+            if startDateType == .halfDay {
+                startDate = nil
+                startDateType = .none
+            } else {
+                startDateType = .halfDay
+            }
+        } else {
+            startDateType = .fullDay
+            startDate = selectedDate
+        }
     }
 
-    func isDaySelected(_ day: Int) -> Bool {
+    func dayOffType(forDay day: Int) -> DayOffType? {
         guard let startDate else {
-            return false
+            return nil
         }
         let calendar = NSCalendar.current
         var currentMonthComponents = calendar.dateComponents([.month, .year], from: startDate)
         currentMonthComponents.day = day
         let date = calendar.date(from: currentMonthComponents)!
-        return date == startDate
+        return date == startDate ? startDateType : nil
     }
 
     var dateRange: DateRange? {
-        guard let startDate else {
+        guard let startDate, let startDateType else {
             return nil
         }
-        return DateRange(startDate: startDate, startDayOffType: .fullDay, endDate: nil, endDayOffType: nil)
+        return DateRange(startDate: startDate, startDayOffType: startDateType, endDate: nil, endDayOffType: nil)
     }
 
     func moveToPreviousMonth() {

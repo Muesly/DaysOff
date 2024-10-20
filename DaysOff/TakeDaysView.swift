@@ -69,12 +69,14 @@ struct TakeDaysView: View {
                     Button {
                         viewModel.selectDay(day: day)
                     } label: {
-                        Text("\(day)")
+                        ZStack {
+                            DaySelectionView(type: viewModel.dayOffType(forDay: day))
+                            Text("\(day)")
+                        }
                     }
                     .padding(5)
                     .frame(width: 40, height: 40)
                     .foregroundColor(.foregroundPrimary)
-                    .background(viewModel.isDaySelected(day) ? Color.backgroundSecondary : Color.backgroundPrimary)
                 }
             }
             .padding()
@@ -86,4 +88,32 @@ struct TakeDaysView: View {
 
 #Preview {
     TakeDaysView(isPresented: .constant(true), selectedRange: .constant(nil), viewModel: .init(currentDate: Date()))
+}
+
+struct DaySelectionView: View {
+    let type: DayOffType?
+
+    var body: some View {
+        GeometryReader { geometry in
+            switch type {
+            case .fullDay:
+                Color.backgroundSecondary
+            case .halfDay:
+                ZStack {
+                    Color.clear
+                    Path { path in
+                        let width = geometry.size.width
+                        let height = geometry.size.height
+                        path.move(to: CGPoint(x: 0, y: height))
+                        path.addLine(to: CGPoint(x: width, y: 0))
+                        path.addLine(to: CGPoint(x: width, y: height))
+                        path.addLine(to: CGPoint(x: 0, y: height))
+                    }
+                }
+                .foregroundColor(.backgroundSecondary)
+            case .none:
+                Color.clear
+            }
+        }
+    }
 }
