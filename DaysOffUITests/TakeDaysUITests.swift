@@ -46,6 +46,20 @@ final class TakeDaysUITests: DaysOffUITests {
     }
 
     @MainActor
+    func test_appTakeRangeOfDays() {
+        let app = setupApp()
+        app.buttons["Take Day"].tap()
+        app.buttons["6"].tap()
+        app.buttons["7"].tap()
+        app.buttons["Save"].tap()
+
+        let daysTakenList = app.collectionViews.firstMatch
+        XCTAssert(daysTakenList.staticTexts["Friday 6 September 2024 - 1 day"].exists)
+        XCTAssert(daysTakenList.staticTexts["Saturday 7 September 2024 - 1 day"].exists)
+        XCTAssert(app.staticTexts["Days Left: 29 days"].exists)
+    }
+
+    @MainActor
     func test_appMoveMonthToTakeDay() {
         let app = setupApp()
         app.buttons["Take Day"].tap()

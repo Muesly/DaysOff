@@ -46,7 +46,7 @@ struct DaysStatsView: View {
                             }
                             
                             Group {
-                                DayInfoRow(title: "Days Taken So Far", value: viewModel.daysTaken(year: year, currentDate: viewModel.currentDate))
+                                DayInfoRow(title: "Days Taken So Far", value: viewModel.daysTaken)
                                 DayInfoRow(title: "Days Left", value: viewModel.daysLeft)
                                     .fontWeight(.bold)
 
