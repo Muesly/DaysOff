@@ -50,4 +50,35 @@ struct TakeDaysViewModelTests {
         #expect(subject.startDate == nil)
         #expect(subject.startDateType == nil)
     }
+
+    @Test func selectingDateRange() {
+        let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3))!
+        let subject = TakeDaysViewModel(currentDate: currentDate)
+
+        // Select start
+        subject.selectDay(day: 1)
+        #expect(subject.startDate == currentDate)
+        #expect(subject.startDateType == .fullDay)
+
+        // Select end
+        subject.selectDay(day: 2)
+        #expect(subject.startDate == currentDate)
+        #expect(subject.startDateType == .fullDay)
+        #expect(subject.endDate == NSCalendar.current.date(byAdding: .day, value: 1, to: currentDate))
+        #expect(subject.endDateType == .fullDay)
+
+        // Toggle start to half day
+        subject.selectDay(day: 1)
+        #expect(subject.startDate == currentDate)
+        #expect(subject.startDateType == .halfDay)
+        #expect(subject.endDate == NSCalendar.current.date(byAdding: .day, value: 1, to: currentDate))
+        #expect(subject.endDateType == .fullDay)
+
+        // Toggle end to half day
+        subject.selectDay(day: 2)
+        #expect(subject.startDate == currentDate)
+        #expect(subject.startDateType == .halfDay)
+        #expect(subject.endDate == NSCalendar.current.date(byAdding: .day, value: 1, to: currentDate))
+        #expect(subject.endDateType == .halfDay)
+    }
 }

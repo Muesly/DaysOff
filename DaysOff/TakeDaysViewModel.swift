@@ -14,6 +14,8 @@ class TakeDaysViewModel {
     let daysOfWeek: [DayOfWeek]
     var startDate: Date?
     var startDateType: DayOffType?
+    var endDate: Date?
+    var endDateType: DayOffType?
 
     struct DayOfWeek: Identifiable {
         var id: Int {
@@ -55,40 +57,74 @@ class TakeDaysViewModel {
         return dayOfFirstDayOfMonth == 1 ? 6 : dayOfFirstDayOfMonth - 2
     }
 
+    private func clear(start: Bool = false, end: Bool = false) {
+        if start {
+            startDate = nil
+            startDateType = .none
+        }
+        if end {
+            endDate = nil
+            endDateType = .none
+        }
+    }
+
     func selectDay(day: Int) {
         let calendar = NSCalendar.current
         var currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
         currentMonthComponents.day = day
         let selectedDate = calendar.date(from: currentMonthComponents)!
-        if selectedDate == startDate {
-            if startDateType == .halfDay {
-                startDate = nil
-                startDateType = .none
-            } else {
-                startDateType = .halfDay
-            }
-        } else {
+        if startDate == nil {
             startDateType = .fullDay
             startDate = selectedDate
+        } else {
+            if selectedDate == startDate {
+                if startDateType == .halfDay {
+                    clear(start: true)
+                } else {
+                    startDateType = .halfDay
+                }
+            } else {
+                if endDate == nil {
+                    endDate = selectedDate
+                    endDateType = .fullDay
+                } else {
+                    if selectedDate == endDate {
+                        if endDateType == .halfDay {
+                            clear(start: true, end: true)
+                        } else {
+                            endDateType = .halfDay
+                        }
+                    } else {
+                        clear(start: true, end: true)
+                    }
+                }
+            }
         }
     }
 
-    func dayOffType(forDay day: Int) -> DayOffType? {
-        guard let startDate else {
+    func dayOffTypeWithEnd(forDay day: Int) -> DayOffTypeWithEnd? {
+        guard let startDate, let startDateType else {
             return nil
         }
         let calendar = NSCalendar.current
-        var currentMonthComponents = calendar.dateComponents([.month, .year], from: startDate)
+        var currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
         currentMonthComponents.day = day
         let date = calendar.date(from: currentMonthComponents)!
-        return date == startDate ? startDateType : nil
+
+        if date == startDate {
+            return DayOffTypeWithEnd(dayOffType: startDateType, isLastDayOff: false)
+        } else if let endDate, let endDateType, date >= startDate && date <= endDate {
+            return DayOffTypeWithEnd(dayOffType: (date == endDate) ? endDateType : .fullDay, isLastDayOff: true)
+        } else {
+            return nil
+        }
     }
 
     var dateRange: DateRange? {
         guard let startDate, let startDateType else {
             return nil
         }
-        return DateRange(startDate: startDate, startDayOffType: startDateType, endDate: nil, endDayOffType: nil)
+        return DateRange(startDate: startDate, startDayOffType: startDateType, endDate: endDate, endDayOffType: endDateType)
     }
 
     func moveToPreviousMonth() {
@@ -102,4 +138,9 @@ class TakeDaysViewModel {
             currentDate = newDate
         }
     }
+}
+
+struct DayOffTypeWithEnd {
+    let dayOffType: DayOffType
+    let isLastDayOff: Bool
 }

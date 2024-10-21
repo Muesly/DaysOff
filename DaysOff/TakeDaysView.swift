@@ -61,16 +61,18 @@ struct TakeDaysView: View {
                         .frame(width: 30)
                         .padding(5)
                 }
-                ForEach(0 ..< viewModel.numLeadingEmptyItems, id: \.self) { _ in
+                ForEach(-viewModel.numLeadingEmptyItems ..< 0, id: \.self) { _ in
                     Text("")
                         .padding(5)
                 }
                 ForEach(1 ... viewModel.daysInFocusedMonth, id: \.self) { day in
                     Button {
-                        viewModel.selectDay(day: day)
+                        withAnimation(.none) {
+                            viewModel.selectDay(day: day)
+                        }
                     } label: {
                         ZStack {
-                            DaySelectionView(type: viewModel.dayOffType(forDay: day))
+                            DaySelectionView(dayOffTypeWithEnd: viewModel.dayOffTypeWithEnd(forDay: day))
                             Text("\(day)")
                         }
                     }
@@ -91,27 +93,35 @@ struct TakeDaysView: View {
 }
 
 struct DaySelectionView: View {
-    let type: DayOffType?
+    let dayOffTypeWithEnd: DayOffTypeWithEnd?
 
     var body: some View {
         GeometryReader { geometry in
-            switch type {
-            case .fullDay:
-                Color.backgroundSecondary
-            case .halfDay:
-                ZStack {
-                    Color.clear
-                    Path { path in
-                        let width = geometry.size.width
-                        let height = geometry.size.height
-                        path.move(to: CGPoint(x: 0, y: height))
-                        path.addLine(to: CGPoint(x: width, y: 0))
-                        path.addLine(to: CGPoint(x: width, y: height))
-                        path.addLine(to: CGPoint(x: 0, y: height))
+            if let dayOffTypeWithEnd {
+                switch dayOffTypeWithEnd.dayOffType {
+                case .fullDay:
+                    Color.backgroundSecondary
+                case .halfDay:
+                    ZStack {
+                        Color.clear
+                        Path { path in
+                            let width = geometry.size.width
+                            let height = geometry.size.height
+                            path.move(to: CGPoint(x: 0, y: height))
+                            // Draw triangle with a direction depending on if on start day or end day
+                            if dayOffTypeWithEnd.isLastDayOff {
+                                path.addLine(to: CGPoint(x: 0, y: 0))
+                                path.addLine(to: CGPoint(x: width, y: 0))
+                            } else {
+                                path.addLine(to: CGPoint(x: width, y: 0))
+                                path.addLine(to: CGPoint(x: width, y: height))
+                            }
+                            path.addLine(to: CGPoint(x: 0, y: height))
+                        }
                     }
+                    .foregroundColor(.backgroundSecondary)
                 }
-                .foregroundColor(.backgroundSecondary)
-            case .none:
+            } else {
                 Color.clear
             }
         }

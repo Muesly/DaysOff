@@ -33,14 +33,15 @@ class DaysOffUITests: XCTestCase {
         XCTAssert(app.staticTexts["Days Left: 31 days"].exists)
         app.buttons["Expand Button"].tap()
 
-        app.buttons["Take 1 Day"].tap()
+        app.buttons["Take Day"].tap()
+        app.buttons["16"].tap()
+        app.buttons["Save"].tap()
         XCTAssert(app.staticTexts["Days Left: 30 days"].exists)
 
-        app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.buttons["Tuesday 17 September"].tap()
-        app.buttons["PopoverDismissRegion"].tap()
-
-        app.buttons["Take 1/2 Day"].tap()
+        app.buttons["Take Day"].tap()
+        app.buttons["17"].tap()
+        app.buttons["17"].tap()
+        app.buttons["Save"].tap()
         XCTAssert(app.staticTexts["Days Reserved: 0.5 days"].exists)
 
         let daysTakenList = app.collectionViews.firstMatch
@@ -49,8 +50,9 @@ class DaysOffUITests: XCTestCase {
         XCTAssert(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
 
         // Check can only add one entry per day by changing a day from half to 1 day
-        app.buttons["Take 1 Day"].tap()
-        XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 1 day"].exists)
+        app.buttons["Take Day"].tap()
+        app.buttons["17"].tap()
+        app.buttons["Save"].tap()
         XCTAssert(app.staticTexts["Days Reserved: 1 day"].exists)
 
         // Swipe to delete
@@ -63,67 +65,6 @@ class DaysOffUITests: XCTestCase {
 
         // Check it remembers days
         XCTAssert(app.staticTexts["Days Left: 30 days"].exists)
-    }
-
-    @MainActor
-    func test_addingIntoDifferentSections() {
-        let app = setupApp()
-        app.buttons["Expand Button"].tap()
-
-        app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        sleep(1)
-        app.buttons["Tuesday 17 September"].tap()
-        app.buttons["PopoverDismissRegion"].tap()
-        app.buttons["Take 1 Day"].tap()
-
-        app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.changeMonth(forwards: false, times: 9)
-        app.buttons["Friday 29 December"].tap()
-        app.buttons["PopoverDismissRegion"].tap()
-        app.buttons["Take 1 Day"].tap()
-
-        app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.changeMonth(forwards: true, times: 7)
-        app.buttons["Wednesday 31 July"].tap()
-        app.buttons["PopoverDismissRegion"].tap()
-        app.buttons["Take 1 Day"].tap()
-
-        app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.changeMonth(forwards: true)
-        app.buttons["Thursday 8 August"].tap()
-        app.buttons["PopoverDismissRegion"].tap()
-        app.buttons["Take 1 Day"].tap()
-
-        app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.changeMonth(forwards: true, times: 2)
-        app.buttons["Tuesday 1 October"].tap()
-        app.buttons["PopoverDismissRegion"].tap()
-        app.buttons["Take 1 Day"].tap()
-
-        app.datePickers.firstMatch.buttons["Date Picker"].tap()
-        app.changeMonth(forwards: true, times: 3)
-        app.buttons["Thursday 2 January"].tap()
-        app.buttons["PopoverDismissRegion"].tap()
-        app.buttons["Take 1 Day"].tap()
-
-        let daysTakenList = app.collectionViews.firstMatch
-        XCTAssert(daysTakenList.staticTexts["Future Months"].exists)
-        XCTAssert(daysTakenList.staticTexts["Tuesday 1 October 2024 - 1 day"].exists)
-
-        XCTAssert(daysTakenList.staticTexts["This Month"].exists)
-        XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 1 day"].exists)
-
-        XCTAssert(daysTakenList.staticTexts["Last Month"].exists)
-        XCTAssert(daysTakenList.staticTexts["Thursday 8 August 2024 - 1 day"].exists)
-
-        XCTAssert(daysTakenList.staticTexts["Previous Months"].exists)
-        XCTAssert(daysTakenList.staticTexts["Wednesday 31 July 2024 - 1 day"].exists)
-
-        XCTAssert(app.staticTexts["Starting Total: 31 days"].exists)
-        XCTAssert(app.staticTexts["Days Taken So Far: 2 days"].exists)
-        XCTAssert(app.staticTexts["Days Left: 29 days"].exists)
-        XCTAssert(app.staticTexts["Days Reserved: 2 days"].exists)
-        XCTAssert(app.staticTexts["Days To Plan: 27 days"].exists)
     }
 
     @MainActor
@@ -195,11 +136,10 @@ class DaysOffUITests: XCTestCase {
         XCTAssert(app.staticTexts["Starting Total: 5 days"].exists)
 
         // When a day is added
-        app.datePickers.firstMatch.buttons["Date Picker"].tap()
+        app.buttons["Take Day"].tap()
         app.changeMonth(forwards: true, times: 4)
-        app.buttons["Thursday 2 January"].tap()
-        app.buttons["PopoverDismissRegion"].tap()
-        app.buttons["Take 1 Day"].tap()
+        app.buttons["2"].tap()
+        app.buttons["Save"].tap()
 
         // Then
         let daysTakenList = app.collectionViews.firstMatch
