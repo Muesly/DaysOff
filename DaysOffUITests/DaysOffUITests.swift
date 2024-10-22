@@ -87,40 +87,14 @@ class DaysOffUITests: XCTestCase {
     }
 
     @MainActor
-    func test_kDayCarryOver() {
+    func test_changeToEntitledDays() {
 
         // Given app is started in 2024
-        var app = setupApp()
+        let app = setupApp()
         XCTAssert(app.staticTexts["2024"].exists)
         app.buttons["Expand Button"].tap()
 
         // Then
-        XCTAssert(app.staticTexts["Starting Total: 31 days"].exists)
-
-        // When I set K days to 2.5
-        app.buttons["Edit Starting Number Of Days"].tap()
-        let textField = app.textFields["K Days"]
-        textField.tap()
-        textField.typeText(XCUIKeyboardKey.delete.rawValue)
-        textField.typeText(XCUIKeyboardKey.delete.rawValue)
-        textField.typeText("2.5")
-        app.buttons["Save"].tap()
-
-        // Then
-        XCTAssert(app.staticTexts["Starting Total: 28.5 days"].exists)
-
-        // When I restart app without resetting
-        app = setupApp(reset: false)
-        app.buttons["Expand Button"].tap()
-
-        // Then it remembers days
-        XCTAssert(app.staticTexts["Starting Total: 28.5 days"].exists)
-
-        // When I go to 2025
-        app.buttons["Next Year"].tap()
-        XCTAssert(app.staticTexts["2025"].exists)
-
-        // Then days go back to default
         XCTAssert(app.staticTexts["Starting Total: 31 days"].exists)
 
         // When entitled days is changed to 0
@@ -134,24 +108,6 @@ class DaysOffUITests: XCTestCase {
 
         // Then
         XCTAssert(app.staticTexts["Starting Total: 5 days"].exists)
-
-        // When a day is added
-        app.buttons["Take Day"].tap()
-        app.changeMonth(forwards: true, times: 4)
-        app.buttons["2"].tap()
-        app.buttons["Save"].tap()
-
-        // Then
-        let daysTakenList = app.collectionViews.firstMatch
-        XCTAssertTrue(daysTakenList.staticTexts["Thursday 2 January 2025 - 1 day"].exists)
-        XCTAssert(app.staticTexts["Days Left: 4 days"].exists)
-
-        // When moving to 2026
-        app.buttons["Next Year"].tap()
-
-        // Then 4 K days are carried over, not 5
-        XCTAssert(app.staticTexts["2026"].exists)
-        XCTAssert(app.staticTexts["Starting Total: 30 days"].exists)
     }
 }
 

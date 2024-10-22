@@ -11,14 +11,10 @@ struct EditStartingNumDaysView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var entitledDays: Float
     @State var editedEntitledDays: Float
-    @Binding var kDays: Float
-    @State var editedKDays: Float
 
-    init(entitledDays: Binding<Float>, kDays: Binding<Float>) {
+    init(entitledDays: Binding<Float>) {
         self._entitledDays = entitledDays
         self.editedEntitledDays = entitledDays.wrappedValue
-        self._kDays = kDays
-        self.editedKDays = kDays.wrappedValue
     }
 
     var body: some View {
@@ -40,21 +36,6 @@ struct EditStartingNumDaysView: View {
                             Spacer()
                         }
                     }
-                    HStack {
-                        HStack {
-                            Spacer()
-                            Text("K Days")
-                        }
-                        .frame(width: geometry.size.width / 2, height: 40)
-                        HStack {
-                            TextField("K Days", value: $editedKDays, formatter: Formatter.decimal)
-                                .keyboardType(.decimalPad)
-                                .padding(5)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 80)
-                            Spacer()
-                        }
-                    }
                 }
             }
             .toolbar {
@@ -65,7 +46,6 @@ struct EditStartingNumDaysView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        kDays = editedKDays
                         entitledDays = editedEntitledDays
                         dismiss()
                     }
@@ -80,8 +60,7 @@ struct EditStartingNumDaysView: View {
 #Preview {
     EditStartingNumDaysView(entitledDays: Binding(get: {
         26
-    }, set: { _ in }),
-                            kDays: Binding(get: { 5 }, set: { _ in }))
+    }, set: { _ in }))
 }
 
 extension Formatter {

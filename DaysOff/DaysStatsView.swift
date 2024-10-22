@@ -73,14 +73,10 @@ struct DaysStatsView: View {
         }
         .padding()
         .sheet(isPresented: $isEditStartingNumDaysPresented) {
-            EditStartingNumDaysView(entitledDays: $entitledDays, kDays: $kDays)
+            EditStartingNumDaysView(entitledDays: $entitledDays)
         }
         .onChange(of: entitledDays) {
             viewModel.entitledDays = entitledDays
-            try? viewModel.updateStartingDays()
-        }
-        .onChange(of: kDays) {
-            viewModel.kDays = kDays
             try? viewModel.updateStartingDays()
         }
     }

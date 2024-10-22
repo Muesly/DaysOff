@@ -13,7 +13,7 @@ final class YearViewModel {
     var modelContext: ModelContext
     var daysOff = [DayOffModel]()
     var entitledDays: Float = 26
-    var kDays: Float = 5
+    let defaultKDays: Float = 5
     var yearValue: Int = 0
     let currentDate: Date
     var futureDaysPredicate: Predicate<DayOffModel>?
@@ -25,6 +25,31 @@ final class YearViewModel {
         get { yearValue }
         set { yearValue = newValue
               setPredicates() }
+    }
+
+    var kDays: Float {
+        guard let firstDay = daysOff.first else {
+            return defaultKDays
+        }
+        let dc = NSCalendar.current.dateComponents([.year], from: firstDay.date)
+        var previousYear = dc.year!
+        var previousKDays: Float = defaultKDays
+        while previousYear < year {
+            var previousYearEntitledDays: Float = 26
+            let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == previousYear }
+            let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
+            if let yearStartingDaysEntries = try? modelContext.fetch(fetchDescriptor),
+               let foundYear = yearStartingDaysEntries.first {
+                previousYearEntitledDays = foundYear.entitledDays
+            }
+            let prevYearNumDaysToTake = previousKDays + previousYearEntitledDays
+            let prevYearDaysTaken = daysTaken(year: previousYear, currentDate: currentDate) + daysReserved(year: previousYear, currentDate: currentDate)
+            let prevYearDaysLeft = prevYearNumDaysToTake - prevYearDaysTaken
+
+            previousKDays = max(0, min(defaultKDays, prevYearDaysLeft))
+            previousYear += 1
+        }
+        return previousKDays
     }
 
     init(modelContext: ModelContext,
@@ -108,6 +133,10 @@ final class YearViewModel {
         daysTaken(year: year, currentDate: currentDate)
     }
 
+    var daysReserved: Float {
+        daysReserved(year: year, currentDate: currentDate)
+    }
+
     var numDaysToTake: Float {
         entitledDays + kDays
     }
@@ -130,7 +159,7 @@ final class YearViewModel {
         return daysOff.reduce(0.0, { $0 + (($1.date >= startOfYear) && ($1.date <= maxDate) ? $1.type.dayLength : 0) })
     }
 
-    var daysReserved: Float {
+    func daysReserved(year: Int, currentDate: Date) -> Float {
         let components = Calendar.current.dateComponents([.year], from: currentDate)
         guard let startOfCurrentYear = Calendar.current.date(from: components),
               let endOfCurrentYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfCurrentYear) else {
@@ -155,16 +184,7 @@ final class YearViewModel {
     }
 
     func getOrUpdateStartingDays() throws {
-        let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == year }
-        let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
-        if let yearStartingDaysEntries = try? modelContext.fetch(fetchDescriptor),
-           let foundYear = yearStartingDaysEntries.first {
-            entitledDays = foundYear.entitledDays
-            kDays = foundYear.kDays
-        } else {
-            entitledDays = 26
-            kDays = 5 - daysTaken(year: year - 1, currentDate: currentDate)
-            try updateStartingDays()
-        }
+        entitledDays = 26
+        try updateStartingDays()
     }
 }

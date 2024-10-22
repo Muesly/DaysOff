@@ -35,4 +35,29 @@ struct YearViewModelTests {
         #expect(try daysOff.filter(subject.lastMonthDaysPredicate!).map { $0.date } == [lastMonthDate])
         #expect(try daysOff.filter(subject.previousDaysPredicate!).map { $0.date } == [previousMonthDate])
     }
+
+    @Test func kDays() throws {
+        // Given it's 2023
+        let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
+        let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
+
+        // And we've set entitled Days to 0 for the year
+        subject.entitledDays = 0
+        try subject.updateStartingDays()
+        #expect(subject.kDays == 5)
+        #expect(subject.numDaysToTake == 5)
+
+        // And we've taken one day off in 2023
+        let lastYearDayOff = currentDate
+        let daysOff = [DayOffModel(date: lastYearDayOff, type: .fullDay)]
+        subject.daysOff = daysOff
+
+        // Change to 2024
+        subject.year = 2024
+        #expect(subject.kDays == 4)
+
+        // Change to 2025
+        subject.year = 2025
+        #expect(subject.kDays == 5)
+    }
 }
