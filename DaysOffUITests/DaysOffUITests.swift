@@ -7,8 +7,8 @@
 
 import XCTest
 
-class DaysOffUITests: XCTestCase {
-    func setupApp(currentDateStr: String = "16 Sep 2024",
+struct AppProvider {
+    static func setupApp(currentDateStr: String = "16 Sep 2024",
                           seed: Bool = false,
                           reset: Bool = true) -> XCUIApplication {
         let app = XCUIApplication()
@@ -23,10 +23,12 @@ class DaysOffUITests: XCTestCase {
         app.launch()
         return app
     }
+}
 
+class DaysOffUITests: XCTestCase {
     @MainActor
     func test_appTakeDayAndThenHalfDay_andIsRemembered() {
-        var app = setupApp()
+        var app = AppProvider.setupApp()
 
         XCTAssert(app.navigationBars["Days Off"].staticTexts["Days Off"].exists)
         XCTAssert(app.staticTexts["2024"].exists)
@@ -61,7 +63,7 @@ class DaysOffUITests: XCTestCase {
         app.buttons["Delete"].tap()
         XCTAssert(app.staticTexts["Days Reserved: 0 days"].exists)
 
-        app = setupApp(reset: false)
+        app = AppProvider.setupApp(reset: false)
 
         // Check it remembers days
         XCTAssert(app.staticTexts["Days Left: 30 days"].exists)
@@ -69,7 +71,7 @@ class DaysOffUITests: XCTestCase {
 
     @MainActor
     func test_changingYears() {
-        let app = setupApp(seed: true)
+        let app = AppProvider.setupApp(seed: true)
         app.buttons["Expand Button"].tap()
 
         let startingYearText = app.staticTexts["2024"]
@@ -90,7 +92,7 @@ class DaysOffUITests: XCTestCase {
     func test_changeToEntitledDays() {
 
         // Given app is started in 2024
-        let app = setupApp()
+        let app = AppProvider.setupApp()
         XCTAssert(app.staticTexts["2024"].exists)
         app.buttons["Expand Button"].tap()
 

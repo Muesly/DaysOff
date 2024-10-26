@@ -9,10 +9,10 @@ import Foundation
 
 import XCTest
 
-final class TakeDaysUITests: DaysOffUITests {
+final class TakeDaysUITests {
     @MainActor
     func test_appTakeDay() {
-        let app = setupApp()
+        let app = AppProvider.setupApp()
         app.buttons["Take Day"].tap()
         XCTAssert(app.staticTexts["Sep 24"].exists)
         ["M", "T", "W", "T", "F", "S", "S"].forEach {
@@ -33,7 +33,7 @@ final class TakeDaysUITests: DaysOffUITests {
 
     @MainActor
     func test_appTakeHalfDay() {
-        let app = setupApp()
+        let app = AppProvider.setupApp()
         app.buttons["Take Day"].tap()
 
         app.buttons["6"].tap()
@@ -47,7 +47,7 @@ final class TakeDaysUITests: DaysOffUITests {
 
     @MainActor
     func test_appTakeRangeOfDays() {
-        let app = setupApp()
+        let app = AppProvider.setupApp()
         app.buttons["Take Day"].tap()
         app.buttons["6"].tap()
         app.buttons["7"].tap()
@@ -61,7 +61,7 @@ final class TakeDaysUITests: DaysOffUITests {
 
     @MainActor
     func test_appMoveMonthToTakeDay() {
-        let app = setupApp()
+        let app = AppProvider.setupApp()
         app.buttons["Take Day"].tap()
         XCTAssert(app.staticTexts["Sep 24"].exists)
         app.buttons["Previous Month"].tap()
