@@ -76,14 +76,16 @@ struct TakeDaysView: View {
                             Text("\(day)")
                         }
                     }
-                    .padding(5)
                     .frame(width: 40, height: 40)
                     .foregroundColor(.foregroundPrimary)
                 }
             }
             .padding()
         }
-        .background(RoundedRectangle(cornerRadius: 10).fill(.backgroundPrimary))
+        .background(RoundedRectangle(cornerRadius: 10)
+            .fill(.backgroundPrimary)
+            .shadow(radius: 5)
+)
         .padding()
     }
 }
