@@ -60,6 +60,21 @@ struct TakeDaysViewModelTests {
         #expect(subject.startDate == currentDate)
         #expect(subject.startDateType == .fullDay)
 
+        // Select start again for half day
+        subject.selectDay(day: 1)
+        #expect(subject.startDate == currentDate)
+        #expect(subject.startDateType == .halfDay)
+
+        // Deselect start
+        subject.selectDay(day: 1)
+        #expect(subject.startDate == nil)
+        #expect(subject.startDateType == nil)
+
+        // Select start
+        subject.selectDay(day: 1)
+        #expect(subject.startDate == currentDate)
+        #expect(subject.startDateType == .fullDay)
+
         // Select end
         subject.selectDay(day: 2)
         #expect(subject.startDate == currentDate)
@@ -80,5 +95,30 @@ struct TakeDaysViewModelTests {
         #expect(subject.startDateType == .halfDay)
         #expect(subject.endDate == NSCalendar.current.date(byAdding: .day, value: 1, to: currentDate))
         #expect(subject.endDateType == .halfDay)
+
+        // Cancel with end
+        subject.selectDay(day: 3)
+        #expect(subject.startDate == nil)
+        #expect(subject.startDateType == nil)
+        #expect(subject.endDate == nil)
+        #expect(subject.endDateType == nil)
+
+        // Cancel at start
+        subject.selectDay(day: 2)
+        subject.selectDay(day: 1)
+        #expect(subject.startDate == nil)
+        #expect(subject.startDateType == nil)
+        #expect(subject.endDate == nil)
+        #expect(subject.endDateType == nil)
+
+        // Cancel at end after half day selection
+        subject.selectDay(day: 1)
+        subject.selectDay(day: 2)
+        subject.selectDay(day: 2)
+        subject.selectDay(day: 2)
+        #expect(subject.startDate == nil)
+        #expect(subject.startDateType == nil)
+        #expect(subject.endDate == nil)
+        #expect(subject.endDateType == nil)
     }
 }

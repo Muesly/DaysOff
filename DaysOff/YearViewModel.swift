@@ -137,13 +137,6 @@ final class YearViewModel {
         try fetchData()
     }
 
-    func takeDay(_ date: Date, type: DayOffType) throws {
-        let newItem = DayOffModel(date: date, type: type)
-        modelContext.insert(newItem)
-        try modelContext.save()
-        try fetchData()
-    }
-
     func delete(_ dayOffModel: DayOffModel) throws {
         modelContext.delete(dayOffModel)
         try modelContext.save()
