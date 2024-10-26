@@ -63,4 +63,25 @@ struct YearViewModelTests {
         try subject.updateYear(2025)
         #expect(subject.kDays == 5)
     }
+
+    @Test func showKDays() throws {
+        let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
+        let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
+        #expect(subject.showKDays == true)
+        try subject.updateYear(2024)
+        #expect(subject.showKDays == false)
+    }
+
+    @Test func defaultKDaysWhenNoDaysTaken() throws {
+        let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
+        let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
+        #expect(subject.kDaysForCurrentYear() == 5)
+    }
+
+    @Test func defaultKDaysWhenPreviousYearToAnyHistory() throws {
+        let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
+        let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
+        try subject.updateYear(2022)
+        #expect(subject.kDaysForCurrentYear() == 5)
+    }
 }
