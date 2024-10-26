@@ -24,10 +24,6 @@ struct DaysOffApp: App {
             try? modelContext.delete(model: YearStartingDaysModel.self)
         }
 
-        if Self.seedData {
-            seedData()
-        }
-
         if Self.disableAnimations {
             UIView.setAnimationsEnabled(false)
         }
@@ -49,10 +45,6 @@ struct DaysOffApp: App {
         ProcessInfo.processInfo.arguments.contains(UITestingKeys.resetKey.rawValue)
     }
 
-    private static var seedData: Bool {
-        ProcessInfo.processInfo.arguments.contains(UITestingKeys.seededDataKey.rawValue)
-    }
-
     private static var disableAnimations: Bool {
         ProcessInfo.processInfo.arguments.contains(UITestingKeys.noAnimationsKey.rawValue)
     }
@@ -67,15 +59,6 @@ struct DaysOffApp: App {
         }
         return nil
     }
-
-    private func seedData() {
-        let modelContext = sharedModelContainer.mainContext
-        modelContext.insert(DayOffModel(date: currentDate, type: .fullDay))
-
-        let dateComponents = DateComponents(year: 2025, month: 1, day: 1)
-        modelContext.insert(DayOffModel(date: Calendar.current.date(from: dateComponents)!, type: .fullDay))
-    }
-
 
     private static func createSharedModelContainer() -> ModelContainer {
         do {

@@ -85,8 +85,12 @@ class TakeDaysViewModel {
                 }
             } else {
                 if endDate == nil {
-                    endDate = selectedDate
-                    endDateType = .fullDay
+                    if selectedDate < startDate! {
+                        clear(start: true)
+                    } else {
+                        endDate = selectedDate
+                        endDateType = .fullDay
+                    }
                 } else {
                     if selectedDate == endDate {
                         if endDateType == .halfDay {

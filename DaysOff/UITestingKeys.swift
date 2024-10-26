@@ -11,5 +11,4 @@ enum UITestingKeys: String {
     case noAnimationsKey
     case resetKey
     case dateKey
-    case seededDataKey
 }
