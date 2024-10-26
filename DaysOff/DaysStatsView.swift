@@ -10,18 +10,20 @@ import SwiftUI
 struct DaysStatsView: View {
     @State private var isEditStartingNumDaysPresented = false
     @State private var isExpanded = false
-    @State private var entitledDays: Float
-    @State private var kDays: Float
+    @Binding private var entitledDays: Float
+    @Binding private var kDays: Float
 
     let viewModel: YearViewModel
     let year: Int
 
-    init(viewModel: YearViewModel, year: Int) {
+    init(viewModel: YearViewModel,
+         year: Int,
+         entitledDays: Binding<Float>,
+         kDays: Binding<Float>) {
         self.viewModel = viewModel
         self.year = year
-
-        entitledDays = viewModel.entitledDays
-        kDays = viewModel.kDays
+        _entitledDays = entitledDays
+        _kDays = kDays
     }
 
     var body: some View {
@@ -73,11 +75,9 @@ struct DaysStatsView: View {
         }
         .padding()
         .sheet(isPresented: $isEditStartingNumDaysPresented) {
-            EditStartingNumDaysView(entitledDays: $entitledDays)
-        }
-        .onChange(of: entitledDays) {
-            viewModel.entitledDays = entitledDays
-            try? viewModel.updateStartingDays()
+            EditStartingNumDaysView(entitledDays: $entitledDays,
+                                    showKDays: viewModel.showKDays,
+                                    kDays: $kDays)
         }
     }
 
@@ -96,5 +96,8 @@ struct DaysStatsView: View {
 }
 
 #Preview {
-    DaysStatsView(viewModel: .init(modelContext: .inMemory, currentDate: Date()), year: 2024)
+    DaysStatsView(viewModel: .init(modelContext: .inMemory, currentDate: Date()),
+                  year: 2024,
+                  entitledDays: .constant(26),
+                  kDays: .constant(5))
 }
