@@ -11,14 +11,14 @@ import Testing
 @testable import DaysOff
 
 struct TakeDaysViewModelTests {
+    private let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3, day: 1))!
+
     @Test func currentMonthStr() {
-        let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3, day: 1))!
         let subject = TakeDaysViewModel(currentDate: currentDate)
         #expect(subject.currentMonthStr == "Mar 24")
     }
 
     @Test func daysInFocusedMonth() {
-        let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3))!
         let subject = TakeDaysViewModel(currentDate: currentDate)
         #expect(subject.daysInFocusedMonth == 31)
 
@@ -27,7 +27,6 @@ struct TakeDaysViewModelTests {
     }
 
     @Test func numLeadingEmptyItemsInCurrentMonth() {
-        let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3))!
         let subject = TakeDaysViewModel(currentDate: currentDate)
         #expect(subject.numLeadingEmptyItems == 4)  // March 2024 started on a Friday
 
@@ -39,7 +38,6 @@ struct TakeDaysViewModelTests {
     }
 
     @Test func selectingDaysRepeatably() {
-        let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3))!
         let subject = TakeDaysViewModel(currentDate: currentDate)
         subject.selectDay(day: 1)
         #expect(subject.startDate == currentDate)
@@ -55,7 +53,6 @@ struct TakeDaysViewModelTests {
     }
 
     @Test func selectingDateRange() {
-        let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3))!
         let subject = TakeDaysViewModel(currentDate: currentDate)
 
         // Select start
@@ -130,7 +127,6 @@ struct TakeDaysViewModelTests {
     }
 
     @Test func movingMonths() {
-        let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3))!
         let subject = TakeDaysViewModel(currentDate: currentDate)
         subject.moveToNextMonth()
         #expect(subject.currentDate == Calendar.current.date(byAdding: .month, value: 1, to: currentDate))
