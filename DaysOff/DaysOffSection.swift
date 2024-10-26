@@ -18,7 +18,7 @@ struct DaysOffSection: View {
     var body: some View {
         Section {
             ForEach(daysOff) {
-                Text("\(Formatters.dateFormatter.string(from: $0.date)) - \($0.type.dayLength, format: Formatters.oneDPFormat) day")
+                Text("\(Formatters.dateFormatter.string(for: $0.date)) - \($0.type.dayLength, format: Formatters.oneDPFormat) day")
                     .foregroundStyle(colour)
             }
             .onDelete(perform: deleteDayOff)

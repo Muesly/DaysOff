@@ -48,8 +48,8 @@ class DaysOffUITests: XCTestCase {
 
         let daysTakenList = app.collectionViews.firstMatch
         XCTAssert(daysTakenList.staticTexts["This Month"].exists)
-        XCTAssert(daysTakenList.staticTexts["Tuesday 17 September 2024 - 0.5 day"].exists)
-        XCTAssert(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
+        XCTAssert(daysTakenList.staticTexts["Tue 17th Sep 24 - 0.5 day"].exists)
+        XCTAssert(daysTakenList.staticTexts["Mon 16th Sep 24 - 1 day"].exists)
 
         // Check can only add one entry per day by changing a day from half to 1 day
         app.buttons["Take Day"].tap()
@@ -58,7 +58,7 @@ class DaysOffUITests: XCTestCase {
         XCTAssert(app.staticTexts["Days Reserved: 1 day"].exists)
 
         // Swipe to delete
-        let entryToDelete = daysTakenList.staticTexts["Tuesday 17 September 2024 - 1 day"]
+        let entryToDelete = daysTakenList.staticTexts["Tue 17th Sep 24 - 1 day"]
         entryToDelete.swipeLeft()
         app.buttons["Delete"].tap()
         XCTAssert(app.staticTexts["Days Reserved: 0 days"].exists)
@@ -78,14 +78,14 @@ class DaysOffUITests: XCTestCase {
         XCTAssert(startingYearText.exists)
 
         let daysTakenList = app.collectionViews.firstMatch
-        XCTAssertTrue(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
-        XCTAssertFalse(daysTakenList.staticTexts["Wednesday 1 January 2025 - 1 day"].exists)
+        XCTAssertTrue(daysTakenList.staticTexts["Mon 16th Sep 24 - 1 day"].exists)
+        XCTAssertFalse(daysTakenList.staticTexts["Wed 1st Jan 25 - 1 day"].exists)
 
         app.buttons["Next Year"].tap()
         let nextYearText = app.staticTexts["2025"]
         XCTAssert(nextYearText.exists)
-        XCTAssertFalse(daysTakenList.staticTexts["Monday 16 September 2024 - 1 day"].exists)
-        XCTAssertTrue(daysTakenList.staticTexts["Wednesday 1 January 2025 - 1 day"].exists)
+        XCTAssertFalse(daysTakenList.staticTexts["Mon 16th Sep 24 - 1 day"].exists)
+        XCTAssertTrue(daysTakenList.staticTexts["Wed 1st Jan 25 - 1 day"].exists)
     }
 
     @MainActor

@@ -8,10 +8,8 @@
 import Foundation
 
 struct Formatters {
-    static var dateFormatter: DateFormatter {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEEE d MMMM YYYY"
-        return dateFormatter
+    static var dateFormatter: OrdinalDateFormatter {
+        return OrdinalDateFormatter()
     }
 
     static var oneDPFormat: FloatingPointFormatStyle<Float> {
