@@ -128,4 +128,13 @@ struct TakeDaysViewModelTests {
         #expect(subject.endDate == nil)
         #expect(subject.endDateType == nil)
     }
+
+    @Test func movingMonths() {
+        let currentDate = Calendar.current.date(from: .init(year: 2024, month: 3))!
+        let subject = TakeDaysViewModel(currentDate: currentDate)
+        subject.moveToNextMonth()
+        #expect(subject.currentDate == Calendar.current.date(byAdding: .month, value: 1, to: currentDate))
+        subject.moveToPreviousMonth()
+        #expect(subject.currentDate == currentDate)
+    }
 }

@@ -64,6 +64,24 @@ struct YearViewModelTests {
         #expect(subject.kDays == 5)
     }
 
+    @Test func daysStats() throws {
+        let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
+        let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
+        try subject.updateEntitledDaysForCurrentYear(26)
+        #expect(subject.entitledDays == 26)
+        try subject.updateEntitledDaysForCurrentYear(28)
+        #expect(subject.entitledDays == 28)
+        #expect(subject.kDays == 5)
+        #expect(subject.daysLeft == 33)
+        #expect(subject.daysTaken == 0)
+        #expect(subject.daysReserved == 0)
+        try subject.takeRangeOfDays(dateRange: DateRange(startDate: currentDate, startDayOffType: .fullDay, endDate: nil, endDayOffType: nil))
+        try subject.takeRangeOfDays(dateRange: DateRange(startDate: currentDate.addingTimeInterval(86400), startDayOffType: .fullDay, endDate: nil, endDayOffType: nil))
+        #expect(subject.daysLeft == 32)
+        #expect(subject.daysTaken == 1)
+        #expect(subject.daysReserved == 1)
+    }
+
     @Test func showKDays() throws {
         let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
         let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
@@ -93,5 +111,14 @@ struct YearViewModelTests {
         try subject.takeRangeOfDays(dateRange: DateRange(startDate: startDate, startDayOffType: .fullDay, endDate: endDate, endDayOffType: .fullDay))
         #expect(subject.daysOff.map { $0.date }.sorted() == [startDate, endDate])
         #expect(subject.daysOff.map { $0.type } == [.fullDay, .fullDay])
+    }
+
+    @Test func deletingDay() throws {
+        let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
+        let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
+        let dayOff = DayOffModel(date: currentDate, type: .fullDay)
+        subject.daysOff = [dayOff]
+        try subject.deleteDay(dayOff)
+        #expect(subject.daysOff == [])
     }
 }
