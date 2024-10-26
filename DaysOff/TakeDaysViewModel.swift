@@ -46,11 +46,11 @@ class TakeDaysViewModel {
     }
 
     var daysInFocusedMonth: Int {
-        NSCalendar.current.range(of: .day, in: .month, for: currentDate)!.count
+        Calendar.current.range(of: .day, in: .month, for: currentDate)!.count
     }
 
     var numLeadingEmptyItems: Int {
-        let calendar = NSCalendar.current
+        let calendar = Calendar.current
         let currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
         let dateForFirstDay = calendar.date(from: currentMonthComponents)!
         let dayOfFirstDayOfMonth = calendar.dateComponents([.weekday], from: dateForFirstDay).weekday!
@@ -69,7 +69,7 @@ class TakeDaysViewModel {
     }
 
     func selectDay(day: Int) {
-        let calendar = NSCalendar.current
+        let calendar = Calendar.current
         var currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
         currentMonthComponents.day = day
         let selectedDate = calendar.date(from: currentMonthComponents)!
@@ -110,7 +110,7 @@ class TakeDaysViewModel {
         guard let startDate, let startDateType else {
             return nil
         }
-        let calendar = NSCalendar.current
+        let calendar = Calendar.current
         var currentMonthComponents = calendar.dateComponents([.month, .year], from: currentDate)
         currentMonthComponents.day = day
         let date = calendar.date(from: currentMonthComponents)!
@@ -132,13 +132,13 @@ class TakeDaysViewModel {
     }
 
     func moveToPreviousMonth() {
-        if let newDate = NSCalendar.current.date(byAdding: .month, value: -1, to: currentDate) {
+        if let newDate = Calendar.current.date(byAdding: .month, value: -1, to: currentDate) {
             currentDate = newDate
         }
     }
 
     func moveToNextMonth() {
-        if let newDate = NSCalendar.current.date(byAdding: .month, value: 1, to: currentDate) {
+        if let newDate = Calendar.current.date(byAdding: .month, value: 1, to: currentDate) {
             currentDate = newDate
         }
     }

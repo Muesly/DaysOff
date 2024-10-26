@@ -47,7 +47,7 @@ final class YearViewModel {
         } else {
             refDate = currentDate
         }
-        return NSCalendar.current.dateComponents([.year], from: refDate).year
+        return Calendar.current.dateComponents([.year], from: refDate).year
     }
 
     var showKDays: Bool {

@@ -79,7 +79,7 @@ struct TakeDaysViewModelTests {
         subject.selectDay(day: 2)
         #expect(subject.startDate == currentDate)
         #expect(subject.startDateType == .fullDay)
-        #expect(subject.endDate == NSCalendar.current.date(byAdding: .day, value: 1, to: currentDate))
+        #expect(subject.endDate == Calendar.current.date(byAdding: .day, value: 1, to: currentDate))
         #expect(subject.endDateType == .fullDay)
         #expect(subject.dayOffTypeWithEnd(forDay: 1)?.dayOffType == .fullDay)
         #expect(subject.dayOffTypeWithEnd(forDay: 1)?.isLastDayOff == false)
@@ -90,14 +90,14 @@ struct TakeDaysViewModelTests {
         subject.selectDay(day: 1)
         #expect(subject.startDate == currentDate)
         #expect(subject.startDateType == .halfDay)
-        #expect(subject.endDate == NSCalendar.current.date(byAdding: .day, value: 1, to: currentDate))
+        #expect(subject.endDate == Calendar.current.date(byAdding: .day, value: 1, to: currentDate))
         #expect(subject.endDateType == .fullDay)
 
         // Toggle end to half day
         subject.selectDay(day: 2)
         #expect(subject.startDate == currentDate)
         #expect(subject.startDateType == .halfDay)
-        #expect(subject.endDate == NSCalendar.current.date(byAdding: .day, value: 1, to: currentDate))
+        #expect(subject.endDate == Calendar.current.date(byAdding: .day, value: 1, to: currentDate))
         #expect(subject.endDateType == .halfDay)
 
         // Cancel with end
