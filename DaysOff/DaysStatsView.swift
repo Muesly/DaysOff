@@ -17,13 +17,13 @@ struct DaysStatsView: View {
     let year: Int
 
     init(viewModel: YearViewModel,
-         year: Int,
-         entitledDays: Binding<Float>,
-         kDays: Binding<Float>) {
+         year: Int) {
         self.viewModel = viewModel
         self.year = year
-        _entitledDays = entitledDays
-        _kDays = kDays
+        _entitledDays = Binding(get: { viewModel.entitledDays },
+                               set: { entitledDays in try? viewModel.updateEntitledDaysForCurrentYear(entitledDays) })
+        _kDays = Binding(get: { viewModel.kDays },
+                         set: { kDays in try? viewModel.updateStartingKDays(kDays) })
     }
 
     var body: some View {
@@ -96,8 +96,5 @@ struct DaysStatsView: View {
 }
 
 #Preview {
-    DaysStatsView(viewModel: .init(modelContext: .inMemory, currentDate: Date()),
-                  year: 2024,
-                  entitledDays: .constant(26),
-                  kDays: .constant(5))
+    DaysStatsView(viewModel: .init(modelContext: .inMemory, currentDate: Date()), year: 2024)
 }

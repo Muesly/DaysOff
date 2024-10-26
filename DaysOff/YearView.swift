@@ -34,7 +34,7 @@ struct YearView: View {
     }
 
     var body: some View {
-        DaysStatsView(viewModel: viewModel, year: 2024)
+        DaysStatsView(viewModel: viewModel, year: viewModel.year)
         ZStack(alignment: .top) {
             VStack(alignment: .center) {
                 Button {
@@ -58,7 +58,6 @@ struct YearView: View {
                     .scrollContentBackground(.hidden)
                     .onAppear {
                         try? viewModel.fetchData()
-                        try? viewModel.getOrUpdateStartingDays()
                         proxy.scrollTo("This Month", anchor: .top)
                     }
                 }
@@ -67,12 +66,15 @@ struct YearView: View {
                 TakeDaysView(isPresented: $isPickingDate,
                              selectedRange: $selectedDateRange,
                              viewModel: TakeDaysViewModel(currentDate: viewModel.currentDate))
-                    .offset(x: 0, y: 45)
+                .offset(x: 0, y: 45)
             }
         }
         .onChange(of: year) {
-            viewModel.year = year
-            try? viewModel.getOrUpdateStartingDays()
+            do {
+                try viewModel.updateYear(year)
+            } catch {
+                print("Failed to change year")
+            }
         }
         .onChange(of: selectedDateRange) {
             if let selectedDateRange {
@@ -93,14 +95,6 @@ struct YearView: View {
             try viewModel.deleteDay(dayOffModel)
         } catch {
             print("Failed to delete day: \(error)")
-        }
-    }
-
-    private func updateStartingDays() {
-        do {
-            try viewModel.updateStartingDays()
-        } catch {
-            print("Failed to update year's atarting days: \(error)")
         }
     }
 }

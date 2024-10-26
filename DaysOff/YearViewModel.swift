@@ -10,12 +10,16 @@ import SwiftData
 
 @Observable
 final class YearViewModel {
+    static let defaultKDays: Float = 5
+    static let defaultEntitledDays: Float = 26
+
     var modelContext: ModelContext
     var daysOff = [DayOffModel]()
-    var entitledDays: Float = 26
-    let defaultKDays: Float = 5
-    var yearValue: Int = 0
+    var entitledDays: Float
+    var kDays: Float
+    var yearValue: Int
     let currentDate: Date
+
     var futureDaysPredicate: Predicate<DayOffModel>?
     var thisMonthDaysPredicate: Predicate<DayOffModel>?
     var lastMonthDaysPredicate: Predicate<DayOffModel>?
@@ -27,39 +31,55 @@ final class YearViewModel {
               setPredicates() }
     }
 
-    var kDays: Float {
-        guard let firstDay = daysOff.first else {
-            return defaultKDays
+    init(modelContext: ModelContext,
+         currentDate: Date) {
+        self.modelContext = modelContext
+        self.currentDate = currentDate
+        self.yearValue = Calendar.current.dateComponents([.year], from: currentDate).year!
+        self.kDays = 0
+        self.entitledDays = 0.0
+    }
+
+    private func yearOfFirstDayOff() -> Int? {
+        var refDate: Date
+        if let firstDay = daysOff.first {
+            refDate = firstDay.date
+        } else {
+            refDate = currentDate
         }
-        let dc = NSCalendar.current.dateComponents([.year], from: firstDay.date)
-        var previousYear = dc.year!
-        var previousKDays: Float = defaultKDays
+        return NSCalendar.current.dateComponents([.year], from: refDate).year
+    }
+
+    var showKDays: Bool {
+        yearOfFirstDayOff() == year
+    }
+
+    private func startingDays(forYear year: Int) -> YearStartingDaysModel? {
+        let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == year }
+        let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
+        return try? modelContext.fetch(fetchDescriptor).first
+    }
+
+    func kDaysForCurrentYear() -> Float {
+        guard let firstYear = yearOfFirstDayOff(),
+              year >= firstYear else {
+            return Self.defaultKDays
+        }
+        var previousKDays: Float = (startingDays(forYear: firstYear)?.kDays) ?? Self.defaultKDays
+        var previousYear = firstYear
         while previousYear < year {
-            var previousYearEntitledDays: Float = 26
-            let predicate: Predicate<YearStartingDaysModel> = #Predicate { $0.year == previousYear }
-            let fetchDescriptor = FetchDescriptor<YearStartingDaysModel>(predicate: predicate)
-            if let yearStartingDaysEntries = try? modelContext.fetch(fetchDescriptor),
-               let foundYear = yearStartingDaysEntries.first {
+            var previousYearEntitledDays: Float = Self.defaultEntitledDays
+            if let foundYear = startingDays(forYear: previousYear) {
                 previousYearEntitledDays = foundYear.entitledDays
             }
             let prevYearNumDaysToTake = previousKDays + previousYearEntitledDays
             let prevYearDaysTaken = daysTaken(year: previousYear, currentDate: currentDate) + daysReserved(year: previousYear, currentDate: currentDate)
             let prevYearDaysLeft = prevYearNumDaysToTake - prevYearDaysTaken
 
-            previousKDays = max(0, min(defaultKDays, prevYearDaysLeft))
+            previousKDays = max(0, min(Self.defaultKDays, prevYearDaysLeft))
             previousYear += 1
         }
         return previousKDays
-    }
-
-    init(modelContext: ModelContext,
-         currentDate: Date) {
-        self.modelContext = modelContext
-        self.currentDate = currentDate
-
-        if let currentYear = Calendar.current.dateComponents([.year], from: currentDate).year {
-            self.year = currentYear
-        }
     }
 
     private func setPredicates() {
@@ -98,6 +118,7 @@ final class YearViewModel {
     func fetchData() throws {
         let descriptor = FetchDescriptor<DayOffModel>()
         daysOff = try modelContext.fetch(descriptor)
+        try updateYear(self.year)
     }
 
     func takeRangeOfDays(dateRange: DateRange) throws {
@@ -177,14 +198,50 @@ final class YearViewModel {
         try modelContext.save()
     }
 
-    func updateStartingDays() throws {
-        let newEntry = YearStartingDaysModel(year: year, entitledDays: entitledDays, kDays: kDays)
-        modelContext.insert(newEntry)
-        try modelContext.save()
+    func updateYear(_ year: Int) throws {
+        self.year = year
+        self.entitledDays = try entitledDaysForCurrentYear()
+        self.kDays = kDaysForCurrentYear()
     }
 
-    func getOrUpdateStartingDays() throws {
-        entitledDays = 26
-        try updateStartingDays()
+    private func entitledDaysForCurrentYear() throws -> Float {
+        if let foundYear = startingDays(forYear: year) {
+            return foundYear.entitledDays
+        } else {
+            let entitledDays = Self.defaultEntitledDays
+            let newEntry = YearStartingDaysModel(year: year,
+                                                 entitledDays: entitledDays,
+                                                 kDays: Self.defaultKDays)
+            modelContext.insert(newEntry)
+            try modelContext.save()
+            return entitledDays
+        }
+    }
+
+    func updateEntitledDaysForCurrentYear(_ entitledDays: Float) throws {
+        if let yearEntry = startingDays(forYear: year) {
+            yearEntry.entitledDays = entitledDays
+            modelContext.insert(yearEntry)
+        } else {
+            let yearEntry = YearStartingDaysModel(year: year,
+                                              entitledDays: entitledDays,
+                                              kDays: Self.defaultKDays)
+            modelContext.insert(yearEntry)
+        }
+        try modelContext.save()
+        self.entitledDays = entitledDays
+        self.kDays = kDaysForCurrentYear()
+    }
+
+    func updateStartingKDays(_ kDays: Float) throws {
+        guard let firstYear = yearOfFirstDayOff(),
+              let yearEntry = startingDays(forYear: firstYear) else {
+            return
+        }
+        yearEntry.kDays = kDays
+        modelContext.insert(yearEntry)
+        try modelContext.save()
+
+        self.kDays = kDaysForCurrentYear()
     }
 }

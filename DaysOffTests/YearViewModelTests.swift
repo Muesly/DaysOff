@@ -29,6 +29,7 @@ struct YearViewModelTests {
                        DayOffModel(date: previousMonthDate, type: .fullDay),
                        DayOffModel(date: nextYearMonthDate, type: .fullDay),
                        DayOffModel(date: prevYearMonthDate, type: .fullDay)]
+        subject.year = 2024
 
         #expect(try daysOff.filter(subject.futureDaysPredicate!).map { $0.date } == [futureMonthDate])
         #expect(try daysOff.filter(subject.thisMonthDaysPredicate!).map { $0.date } == [currentMonthDate])
@@ -42,10 +43,12 @@ struct YearViewModelTests {
         let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
 
         // And we've set entitled Days to 0 for the year
-        subject.entitledDays = 0
-        try subject.updateStartingDays()
-        #expect(subject.kDays == 5)
-        #expect(subject.numDaysToTake == 5)
+        try subject.updateEntitledDaysForCurrentYear(0)
+        try subject.updateStartingKDays(4)
+        try subject.updateYear(2023)
+
+        #expect(subject.kDays == 4)
+        #expect(subject.numDaysToTake == 4)
 
         // And we've taken one day off in 2023
         let lastYearDayOff = currentDate
@@ -53,11 +56,11 @@ struct YearViewModelTests {
         subject.daysOff = daysOff
 
         // Change to 2024
-        subject.year = 2024
-        #expect(subject.kDays == 4)
+        try subject.updateYear(2024)
+        #expect(subject.kDays == 3)
 
         // Change to 2025
-        subject.year = 2025
+        try subject.updateYear(2025)
         #expect(subject.kDays == 5)
     }
 }
