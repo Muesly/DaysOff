@@ -16,6 +16,9 @@ struct FormatterTests {
         let dc = DateComponents(year: 2024, month: 1, day: 1)
         let date = Calendar.current.date(from: dc)!
         #expect(Formatters.dateFormatter.string(for: date) == "Mon 1st Jan 24")
+        #expect(Formatters.dateFormatter.string(for: date.addingTimeInterval(86400)) == "Tue 2nd Jan 24")
+        #expect(Formatters.dateFormatter.string(for: date.addingTimeInterval(2 * 86400)) == "Wed 3rd Jan 24")
+        #expect(Formatters.dateFormatter.string(for: date.addingTimeInterval(3 * 86400)) == "Thu 4th Jan 24")
     }
 
     @Test func oneDPFormat() async {
