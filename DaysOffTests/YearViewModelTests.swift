@@ -72,7 +72,7 @@ struct YearViewModelTests {
         #expect(subject.showKDays == false)
     }
 
-    @Test func defaultKDaysWhenNoDaysTaken() throws {
+    @Test func defaultKDaysWhenNoDaysTaken() {
         let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
         let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
         #expect(subject.kDaysForCurrentYear() == 5)
@@ -83,5 +83,15 @@ struct YearViewModelTests {
         let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
         try subject.updateYear(2022)
         #expect(subject.kDaysForCurrentYear() == 5)
+    }
+
+    @Test func savingRangesOfDays() throws {
+        let currentDate = Calendar.current.date(from: .init(year: 2023, month: 3, day: 1))!
+        let startDate = currentDate
+        let endDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)
+        let subject = YearViewModel(modelContext: .inMemory, currentDate: currentDate)
+        try subject.takeRangeOfDays(dateRange: DateRange(startDate: startDate, startDayOffType: .fullDay, endDate: endDate, endDayOffType: .fullDay))
+        #expect(subject.daysOff.map { $0.date }.sorted() == [startDate, endDate])
+        #expect(subject.daysOff.map { $0.type } == [.fullDay, .fullDay])
     }
 }

@@ -33,6 +33,9 @@ struct TakeDaysViewModelTests {
 
         subject.currentDate = Calendar.current.date(from: .init(year: 2024, month: 4))!
         #expect(subject.numLeadingEmptyItems == 0)  // April 2024 started on a Monday
+
+        subject.currentDate = Calendar.current.date(from: .init(year: 2024, month: 9))!
+        #expect(subject.numLeadingEmptyItems == 6)  // Sep 2024 started on a Sunday
     }
 
     @Test func selectingDaysRepeatably() {
