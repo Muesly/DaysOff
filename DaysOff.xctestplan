@@ -30,6 +30,7 @@
       }
     },
     {
+      "enabled" : false,
       "target" : {
         "containerPath" : "container:DaysOff.xcodeproj",
         "identifier" : "DD20D8E92C95ADBD0021F78E",
